@@ -1,61 +1,19 @@
-(* 
-
-A version of earley using objects to provide the set interface.
-
-We also take this opportunity to eliminate object methods with
-polymorphic type (explicit type annotation is rather boring).
-
-Do we want to keep the ops? There is something quite nice about having
-these stated explicitly. We need to ensure we can generalize over
-these types though, and this requires that the types are generic, so
-ty_ops must be parameterizable. 
-
-*)
-
-
-(* type 'a coord = { v9: 'a; i9: int; j9: int } *)
 type 'a substring = 'a * int * int
 
-module type EARLEY_TYPES = sig
-  type nt
-  type tm
-  type sym
-
-  (* type pre_nt_item *)
-  type nt_item (* = pre_nt_item*int*int *)
-
-  type tm_item (* = tm*int *)
-  type sym_item (* = sym*int*int *)
-  type sym_list
-
-  type item (* = nt_item+tm_item *)
- 
-end
-
-
-(* the actual implementation we choose *)
-(*
-module XX : EARLEY_TYPES = (val (Obj.magic 0) : EARLEY_TYPES)
-
-open XX
-*)
-
-
-(* FIXME make sym_case types align with universe; remove is_NTITM etc in favour of case *)
 type 'a ty_ops = {
   sym_case       : 'sym -> [ `NT of 'nt | `TM of 'tm];
   sym_of_tm      : 'tm -> 'sym;
-  mk_tm_coord    : ('tm * int) -> 'tm_item; (* need map tm -> i *)
-  tm5            : 'tm_item -> 'tm; (* ignoring i,j, this is the only info in a tm_coord *) (* no-op - repn tm_coord by tm, which is an int for us FIXME no this is a map to tm, not to int - this only works if we have an injective map from syms to ints, which we do have! *)
-  mk_sym_coord   : ('sym * int * int) -> 'sym_item; (* if syms are ints, no-op, providing we use {i|i repn symb} as the repn of items with a given sym *)
-  sym6           : 'sym_item -> 'sym; (* ignoring i,j, this is the only info in a sym_coord *) (* repn i->sym *)
-  nt2            : 'nt_item -> 'sym;  (* repn i->sym *)
-  shift_a2_b2_c2 : 'nt_item -> 'nt_item; (* repn i->i *)
-  a2_length_1    : 'nt_item -> bool;    (* repn i->b; shouldn't be used - only for debugging *)
-  b2_nil         : 'nt_item -> bool;    (* repn i->b *)
-  hd_a2          : 'nt_item -> 'sym;  (* repn i->sym ; only used on a singleton a2 list *)
+  mk_tm_coord    : ('tm * int) -> 'tm_item;
+  tm5            : 'tm_item -> 'tm;
+  mk_sym_coord   : ('sym * int * int) -> 'sym_item;
+  sym6           : 'sym_item -> 'sym;
+  nt2            : 'nt_item -> 'sym;
+  shift_a2_b2_c2 : 'nt_item -> 'nt_item;
+  a2_length_1    : 'nt_item -> bool;
+  b2_nil         : 'nt_item -> bool;
+  hd_a2          : 'nt_item -> 'sym;
   a2             : 'nt_item -> 'sym_list;
-  hd_b2          : 'nt_item -> 'sym;  (* repn i->sym; implement as hd_a2 o shift? possibly inefficient *)
+  hd_b2          : 'nt_item -> 'sym;
   nt_items_for_nt: 'nt -> int -> 'nt_item list;
   mk_item        : [`NTITM of 'nt_item | `TMITM of 'tm_item ] -> 'item;
   dest_item      : 'item -> [`NTITM of 'nt_item | `TMITM of 'tm_item ];
@@ -73,30 +31,11 @@ type 'a ty_ops = {
   tm_item    :'tm_item    ;
   sym_item   :'sym_item   ;
   sym_list   :'sym_list   ;
-(*  pre_nt_item:'pre_nt_item; *)
   nt_item    :'nt_item    ;
   item       :'item       ;
   string     :'string     ;
 >
 
-(*
-module Myset = struct 
-type 'a myset = {
-  add: 'elt -> 't -> 't;
-  empty: 't;
-  fold: 'a. ('elt -> 'a -> 'a) -> 't -> 'a -> 'a;
-  is_empty: 't -> bool;
-  mem: 'elt -> 't -> bool;
-  elements: 't -> 'elt list
-} constraint 'a = <
-  elt:'elt;
-  t: 't
->
-end
-include Myset
-*)
-
-(* set_todo_done *)
 type 'a std = {
   std_empty: unit -> 't;
   std_add: 'elt -> 't -> 't;
@@ -112,41 +51,6 @@ type 'a ctxt_set = {
   todo_done: 'todo_done; (* nt_item+tm_item *)
   set_todo_done: 'set_todo_done;
 >
-
-(* a map with default values *)
-(*
-module Mymap = struct
-type 'a mymap = {
-  empty: 't;
-  add: 'key -> 'value -> 't -> 't;
-  find2 : 'key -> 't -> 'value;
-} constraint 'a = <
-  key: 'key;
-  value: 'value;
-  t: 't
->
-end
-include Mymap
-*)
-
-(* a map to a set of 'value *)
-(*
-module Map_to_set = struct
-type 'a map_to_set = {
-  m2s_empty: 't;
-  m2s_add_to_set: 'key -> 'value -> 't -> 't;
-  m2s_mem_cod: 'key -> 'value -> 't -> bool; (* mem of codomain *)
-  m2s_fold_cod: 'b. 'key -> ('value -> 'b -> 'b) -> 't -> 'b -> 'b; (* fold over codomain *)
-  m2s_find2: 'key -> 't -> <elt:'value; t:'set> myset; (* get set value *) 
-} constraint 'a = <
-  m2s_key: 'key;
-  m2s_value: 'value;
-  m2s_set: 'set;
-  t: 't
->
-end
-include Map_to_set
-*)
 
 type 'a mbk = {
   mbk_empty: unit -> 't;
@@ -189,10 +93,10 @@ type 'a mssii = {
 >
 
 type 'a ctxt_map = {
-  map_blocked_key: <mbk_key:int*'sym;mbk_value:'nt_item;t:'map_blocked_key> mbk;
-  map_complete_key: <mck_key:int*'sym;mck_value:'sym_item;t:'map_complete_key> mck;
-  map_sym_sym_int_int: <mssii_key:'sym_list*'sym*int*int;mssii_value:int;t:'map_sym_sym_int_int> mssii;
-  map_tm_int: <mti_key:'tm*int;mti_value:int; t:'map_tm_int> mti;
+  map_blocked_key: <mbk_key:int*'sym; mbk_value:'nt_item; t:'map_blocked_key> mbk;
+  map_complete_key: <mck_key:int*'sym; mck_value:'sym_item; t:'map_complete_key> mck;
+  map_sym_sym_int_int: <mssii_key:'sym_list*'sym*int*int; mssii_value:int; t:'map_sym_sym_int_int> mssii;
+  map_tm_int: <mti_key:'tm*int; mti_value:int; t:'map_tm_int> mti;
 } constraint 'a = <
   sym:'sym;
   tm:'tm;
@@ -206,13 +110,9 @@ type 'a ctxt_map = {
 >
 
 
-(* FIXME move to core types? *)
 type ('string,'a,'s,'m) ty_ctxt = {
-  (* g5:grammar; *)
-  (* sym5:nt; (\* nt initial sym *\) *)
   string5: 'string;
-  length5: int; (* length of string5 *)
-(*  p_of_tm5:'tm -> 'string substring -> int list; *)
+  length5: int;
   item_ops5: 'a ty_ops;
   sets: 's ctxt_set;
   maps: 'm ctxt_map;
@@ -223,12 +123,11 @@ type ('string,'a,'s,'m) ty_ctxt = {
   tm_item    :'tm_item    ;
   sym_item   :'sym_item   ;
   sym_list   :'sym_list   ;
-(*  pre_nt_item:'pre_nt_item; *)
   nt_item    :'nt_item    ;
   item       :'item       ;
   string     :'string     ;
 > constraint 's = <
-  todo_done: 'todo_done; (* nt_item+tm_item *)
+  todo_done: 'todo_done; 
   set_todo_done: 'set_todo_done;
 > constraint 'm = <
   sym:'sym;
@@ -241,7 +140,6 @@ type ('string,'a,'s,'m) ty_ctxt = {
   map_sym_sym_int_int: 'map_sym_sym_int_int;  
   map_tm_int: 'map_tm_int;  
 >
-
 
 type 'a ty_loop2 = {
   todo_done5: 'set_todo_done;
@@ -259,8 +157,25 @@ type 'a ty_loop2 = {
   map_tm_int: 'map_tm_int;  
 >
 
-(* following for type checking only *)
 
+
+module type EARLEY_TYPES = sig
+  type nt
+  type tm
+  type sym
+
+  (* type pre_nt_item *)
+  type nt_item (* = pre_nt_item*int*int *)
+
+  type tm_item (* = tm*int *)
+  type sym_item (* = sym*int*int *)
+  type sym_list
+
+  type item (* = nt_item+tm_item *)
+ 
+end
+
+(* following for type checking only *)
 module type EARLEY_X_TYPES = sig
   
   include EARLEY_TYPES
@@ -290,7 +205,6 @@ module type EARLEY_X_TYPES = sig
     tm_item    :tm_item    ;
     sym_item   :sym_item   ;
     sym_list   :sym_list   ;
-(*    pre_nt_item:pre_nt_item; *)
     nt_item    :nt_item    ;
     item       :item       ;
     string     :string     ;
@@ -312,14 +226,14 @@ module type EARLEY_X_TYPES = sig
   val x_ctxt: ty_x_ctxt
 
   type ty_x_loop2 = 'a ty_loop2 
-constraint 'a = <
-  item: item;
-  set_todo_done: set_todo_done;
-  map_blocked_key: map_blocked_key;  
-  map_complete_key: map_complete_key;  
-  map_sym_sym_int_int: map_sym_sym_int_int;  
-  map_tm_int: map_tm_int;  
->
+    constraint 'a = <
+      item: item;
+      set_todo_done: set_todo_done;
+      map_blocked_key: map_blocked_key;  
+      map_complete_key: map_complete_key;  
+      map_sym_sym_int_int: map_sym_sym_int_int;  
+      map_tm_int: map_tm_int;  
+    >
 
 end
 
