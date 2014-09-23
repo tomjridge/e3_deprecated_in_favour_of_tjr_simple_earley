@@ -1,3 +1,15 @@
+(** Generic interface to the Earley parser.
+
+    This interface is extremely general, hence the complicated
+    types. Effectively we are parametric over everything: the input
+    type, the datatypes used to represent terminals, nonterminals,
+    symbols, items, even lists of symbols.
+
+    However, typical use of this interface is much simpler. As an
+    example, the module {!module:E3_simple} exposes a simple interface
+    to the Earley parser.
+*)
+
 type 'a substring = 'a * int * int
 
 type 'a ty_ops = {

@@ -9,7 +9,7 @@ OCAMLDOC=$(shell command -v ocamldoc.opt || command -v ocamldoc || echo missing_
 WARNINGS=-w -8#
 COMPFLAGS=$(WARNINGS)
 
-E3=e3_core.cmo e3_examples_ds.cmo
+E3=e3_core.cmo e3_simple.cmo
 CMO=$(E3) 
 
 NATIVES=e3_examples.native e3_test.native
@@ -39,8 +39,8 @@ $(NATIVES): %.native: %.ml e3.cmxa
 	$(CAMLOPT) $(FORPACK) $(COMPFLAGS) $(CAMLOPTINCLUDES) -c $<
 
 
-doc: $(E3)
-	$(OCAMLDOC) -html $(E3:.cmo=.ml)
+doc: e3_core.mli e3_simple.mli
+	$(OCAMLDOC) -html e3_core.mli e3_simple.mli
 
 
 depend:

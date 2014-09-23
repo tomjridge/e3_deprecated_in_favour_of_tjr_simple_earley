@@ -10,6 +10,12 @@ type tm_item = tm * int
 type sym_item = sym * int * int
 type item = [ `NTITM of nt_item | `TMITM of tm_item ]
 
+type 'a params = {
+  grammar: (nt*sym list) list;
+  p_of_tm: tm -> ('a*int*int) -> int list }
+
+type ty_oracle = (sym list * sym) -> (int * int) -> int list
+
 let mk_ops nt_items_for_nt p_of_tm = (
   let id = fun x -> x in
   {
@@ -193,11 +199,35 @@ let mk_init_loop2 ctxt init_items = (
   } in
   s0)
 
-let earley nt_items_for_nt p_of_tm txt len init_items = (
+let earley' nt_items_for_nt p_of_tm txt len init_items = (
   let ctxt = mk_ctxt nt_items_for_nt p_of_tm txt len in
   let s0 = mk_init_loop2 ctxt init_items in
   (ctxt,E3_core.earley ctxt s0))
-  
 
+let mk_item i rule = (
+  match rule with
+  | (nt,rhs) -> (nt,[],rhs,i,i))
+
+let nt_items_for_nt g nt i = (
+  g 
+  |> List.filter (fun (nt',rhs) -> nt'=nt) 
+  |> List.map (mk_item i))
+
+let post_process ctxt s0 = (
+  let open E3_core in
+  let o = s0.oracle5 in
+  let o = fun (syms1,sym2) -> fun (i,j) -> 
+    ctxt.maps.map_sym_sym_int_int.mssii_elts_cod (syms1,sym2,i,j) o in
+  o)
+
+  
+let earley params nt txt len = (
+  let nt_items_for_nt = nt_items_for_nt params.grammar in
+  let p_of_tm = params.p_of_tm in
+  let init_items = [`NTITM(nt,[],[nt],0,0)] in
+  let (ctxt,s0) = earley' nt_items_for_nt p_of_tm txt len init_items in
+  post_process ctxt s0)
+
+let (_:'a params -> nt -> 'a -> int -> ty_oracle) = earley
 
 

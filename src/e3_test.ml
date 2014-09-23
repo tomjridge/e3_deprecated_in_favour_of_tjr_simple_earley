@@ -33,40 +33,23 @@ let g = [
   (e,[a1]);
   (e,[eps])]
 
-let mk_item i rule = (
-  match rule with
-  | (nt,rhs) -> (nt,[],rhs,i,i))
-
-let nt_items_for_nt nt i = (
-  g 
-  |> List.filter (fun (nt',rhs) -> nt'=nt) 
-  |> List.map (mk_item i))
 
 (**********************************************************************)
 (* process grammar and input with earley *)
 
 let run_earley_string txt = (
-  let init_items = List.map (fun x -> `NTITM (mk_item 0 x)) g in
-  E3_examples_ds.earley 
-    nt_items_for_nt 
-    p_of_tm 
+  let open E3_simple in
+  let params = { grammar=g; p_of_tm=p_of_tm } in
+  E3_simple.earley 
+    params
+    e
     txt 
-    (String.length txt) 
-    init_items)
+    (String.length txt))
 
 let txt = "1111"
 let len = String.length txt
 
-let (ctxt,s0) = run_earley_string txt
-
-let post_process ctxt s0 = (
-  let open E3_core in
-  let o = s0.oracle5 in
-  let o = fun (syms1,sym2) -> fun (i,j) -> 
-    ctxt.maps.map_sym_sym_int_int.mssii_elts_cod (syms1,sym2,i,j) o in
-  o)
-
-let o = post_process ctxt s0
+let o = run_earley_string txt
 
 let asbss = [
   ([],[e;e;e]);

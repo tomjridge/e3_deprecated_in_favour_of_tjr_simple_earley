@@ -1,11 +1,12 @@
 e3_core.cmi :
+e3_simple.cmi :
 e3_core.cmo : e3_core.cmi
 e3_core.cmx : e3_core.cmi
-e3_examples_ds.cmo : e3_core.cmi
-e3_examples_ds.cmx : e3_core.cmx
-e3_examples.cmo : e3_examples_ds.cmo e3_core.cmi
-e3_examples.cmx : e3_examples_ds.cmx e3_core.cmx
-e3_test.cmo : e3_examples_ds.cmo e3_core.cmi
-e3_test.cmx : e3_examples_ds.cmx e3_core.cmx
+e3_examples.cmo : e3_simple.cmi e3_core.cmi
+e3_examples.cmx : e3_simple.cmx e3_core.cmx
+e3_simple.cmo : e3_core.cmi e3_simple.cmi
+e3_simple.cmx : e3_core.cmx e3_simple.cmi
+e3_test.cmo : e3_simple.cmi e3_core.cmi
+e3_test.cmx : e3_simple.cmx e3_core.cmx
 interactive.cmo :
 interactive.cmx :
