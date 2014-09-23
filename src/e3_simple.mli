@@ -1,6 +1,11 @@
-(** A simple interface to Earley. The implementation is very
-    inefficient - this is only for demonstration purposes. DO NOT USE
-    IN PRODUCTION CODE! *)
+(** A simple interface to Earley. 
+
+    The implementation is very inefficient - this is only for
+    demonstration purposes. DO NOT USE IN PRODUCTION CODE!
+
+    Examples of usage can be found in the modules {E3_examples} and
+    {E3_test} (no ocamldoc - consult the source).
+*)
 
 
 (** Nonterminals must be even integers *)
