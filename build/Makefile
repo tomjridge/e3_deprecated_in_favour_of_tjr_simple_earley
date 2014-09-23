@@ -12,7 +12,7 @@ COMPFLAGS=$(WARNINGS)
 E3=e3_core.cmo e3_examples_ds.cmo
 CMO=$(E3) 
 
-NATIVES=e3_examples.native 
+NATIVES=e3_examples.native e3_test.native
 
 all: e3.cma e3.cmxa $(NATIVES)
 

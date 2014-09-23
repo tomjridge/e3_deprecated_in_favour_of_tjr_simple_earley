@@ -51,7 +51,8 @@ let run_earley_string txt = (
   let init_items = List.map (fun x -> `NTITM (mk_item 0 x)) g in
   E3_examples_ds.earley 
     nt_items_for_nt 
-    p_of_tm txt 
+    p_of_tm 
+    txt 
     (String.length txt) 
     init_items)
 
