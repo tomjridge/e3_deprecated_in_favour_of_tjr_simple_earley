@@ -1,10 +1,3 @@
-(* 
-
-Examples using the programmatic interface to Earley3
-
-*)
-
-module E3 = Earley3
 
 (* we define two terminals; for Earley_int_interface, terminals are
    odd ints *)
