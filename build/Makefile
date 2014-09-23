@@ -5,15 +5,16 @@ CAMLOPT=$(shell command -v ocamlopt.opt || command -v ocamlopt || echo missing_o
 CAMLDEP=$(shell command -v ocamldep.opt || command -v ocamldep || echo missing_ocamldep) -one-line
 OCAMLDOC=$(shell command -v ocamldoc.opt || command -v ocamldoc || echo missing_ocamldoc)
 
-WARNINGS=#
+# FIXME remove this suppresion of warnings
+WARNINGS=-w -8#
 COMPFLAGS=$(WARNINGS)
 
-E3=e3_core.cmo
+E3=e3_core.cmo e3_examples_ds.cmo
 CMO=$(E3) 
 
-NATIVES=# 
+NATIVES=e3_examples.native 
 
-all: e3.cma e3.cmxa
+all: e3.cma e3.cmxa $(NATIVES)
 
 e3.cma: $(CMO)
 	$(CAMLC) $(CAMLCINCLUDES) -a -o $@ $(CMO)
@@ -21,8 +22,8 @@ e3.cma: $(CMO)
 e3.cmxa: $(CMO:.cmo=.cmx)
 	$(CAMLOPT) -a -o $@ $(CMO:.cmo=.cmx)
 
-$(NATIVES): %.native: %.ml p3.cmxa
-	$(CAMLOPT) $(COMPFLAGS) $(CAMLOPTINCLUDES) -o $@ p3.cmxa $<
+$(NATIVES): %.native: %.ml e3.cmxa
+	$(CAMLOPT) $(COMPFLAGS) $(CAMLOPTINCLUDES) -o $@ e3.cmxa $<
 
 
 # Default rules
@@ -38,8 +39,8 @@ $(NATIVES): %.native: %.ml p3.cmxa
 	$(CAMLOPT) $(FORPACK) $(COMPFLAGS) $(CAMLOPTINCLUDES) -c $<
 
 
-doc: $(P3)
-	$(OCAMLDOC) -html $(P3:.cmo=.ml)
+doc: $(E3)
+	$(OCAMLDOC) -html $(E3:.cmo=.ml)
 
 
 depend:
@@ -49,9 +50,8 @@ include .depend
 
 
 clean:
-	rm -f $(CMO) $(CMO:.cmo=.cmi) $(CMO:.cmo=.cmx) $(NATIVES:.native=.cmo) $(NATIVES:.native=.cmi) $(NATIVES:.native=.cmx) {minip3,mini_p3_lib}.cm[iox]
-	rm -f *.cma *.cmxa *.a $(CMO:.cmo=.o) *.native $(NATIVES:.native=.o) {minip3,mini_p3_lib}.o
+	rm -f $(CMO) $(CMO:.cmo=.cmi) $(CMO:.cmo=.cmx) $(NATIVES:.native=.cmo) $(NATIVES:.native=.cmi) $(NATIVES:.native=.cmx) 
+	rm -f *.cma *.cmxa *.a $(CMO:.cmo=.o) *.native $(NATIVES:.native=.o) 
 	rm -f *.{html,css}
 
 realclean:
-	rm -f p3_$(VERSION).{o,cmi,cmo,cmx}

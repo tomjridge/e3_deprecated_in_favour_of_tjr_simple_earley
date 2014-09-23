@@ -1,3 +1,5 @@
+(**********************************************************************)
+(* example grammar *)
 
 (* we define two terminals; for Earley_int_interface, terminals are
    odd ints *)
@@ -19,7 +21,7 @@ let parse_a1 = (fun (s,i,j) ->
 let p_of_tm = (fun tm -> 
   if tm=eps then parse_eps
   else if tm=a1 then parse_a1
-  else failwith "p_of_tm: 25")
+  else failwith "p_of_tm: p8t")
 
 (* define a nonterminal; for Earley_int_interface, nonterminals are
    even ints *)
@@ -31,36 +33,52 @@ let g = [
   (e,[a1]);
   (e,[eps])]
 
-let setup s = (
-  object
-    method g7=g;
-    method length7=String.length s;
-    method p_of_tm7=p_of_tm;
-    method string7=s;
-    method sym7=e
-  end)
+let mk_item i rule = (
+  match rule with
+  | (nt,rhs) -> (nt,[],rhs,i,i))
 
-let e3_parse s = (
-  let setup = setup s in
-  E3.Earley_int_interface.earley_full setup)
+let nt_items_for_nt nt i = (
+  g 
+  |> List.filter (fun (nt',rhs) -> nt'=nt) 
+  |> List.map (mk_item i))
 
-let r = e3_parse "11111"
 
-(* if we want to parse the sequence "E E" between positions 0 and 5,
-   where do we cut? *)
+
+(**********************************************************************)
+(* process grammar and input with earley *)
+
+let run_earley_string txt = (
+  let init_items = List.map (fun x -> `NTITM (mk_item 0 x)) g in
+  E3_examples_ds.earley 
+    nt_items_for_nt 
+    p_of_tm txt 
+    (String.length txt) 
+    init_items)
+
+let (ctxt,s0) = run_earley_string "11111"
+
+let post_process ctxt s0 = (
+  let open E3_core in
+  let o = s0.oracle5 in
+  let o = fun (syms1,sym2) -> fun (i,j) -> 
+    ctxt.maps.map_sym_sym_int_int.mssii_elts_cod (syms1,sym2,i,j) o in
+  o)
+
+let o = post_process ctxt s0
+
+(* check the type of o *)
+let _ = 
+  let open E3_examples_ds in
+  let (_ : sym list * sym -> int * int -> int list) = o in
+  ()
+
+(* if we want to cut [E E] and E between positions 0 and 5, where do
+   we cut? N.B. the list is in reversed order *)
 let _ = (
-  let rs = (r#oracle (e,e) (0,5)) in
-  let rs = List.sort Pervasives.compare rs in (* may not be sorted? *)
+  let rs = o ([e;e],e) (0,5) in
+  let rs = List.sort Pervasives.compare rs in 
   assert([0;1;2;3;4;5] = rs))
-
-(* NB if you don't want an oracle, but want the results in some other
-   form, just cut and paste the earley_full code from e3_std, and
-   adjust the post_process function *)
-
-(* we also have information about the terminal parsers *)
-let _ = (assert(true = (r#tmoracle a1 (1,2))))
-
 
 (* How fast is the earley parser? In a top-level, the following
    returns in about 1s. Compiled this whole file takes about 0.3 s. *)
-let r = e3_parse "1111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111"
+let r = run_earley_string "1111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111"
