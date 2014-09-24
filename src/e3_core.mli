@@ -21,9 +21,9 @@ type 'a ty_ops = {
   sym6           : 'sym_item -> 'sym;
   nt2            : 'nt_item -> 'sym;
   shift_a2_b2_c2 : 'nt_item -> 'nt_item;
-  a2_length_1    : 'nt_item -> bool;
+(*  a2_length_1    : 'nt_item -> bool; *)
   b2_nil         : 'nt_item -> bool;
-  hd_a2          : 'nt_item -> 'sym;
+(*  hd_a2          : 'nt_item -> 'sym; *)
   a2             : 'nt_item -> 'sym_list;
   hd_b2          : 'nt_item -> 'sym;
   nt_items_for_nt: 'nt -> int -> 'nt_item list;
