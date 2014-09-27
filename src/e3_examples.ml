@@ -1,3 +1,21 @@
+(* update GC params *)
+
+let _ = 
+  let open Gc in
+  set { (get()) with max_overhead=1000000; space_overhead=1000000 }
+
+(**********************************************************************)
+(* timing function *)
+
+(* to get a visual indication of runtime *)
+let start_stop s f = 
+  let t1 = Sys.time () in
+  let _ = print_string ("Start "^s^" ...") in
+  let _ = f () in
+  let t2 = Sys.time () in
+  let _ = print_endline ("...stop in "^(string_of_float (t2 -. t1))^" seconds") in
+  ()
+
 (**********************************************************************)
 (* example grammar *)
 
@@ -42,7 +60,7 @@ let g = [
 let run_earley_string txt = (
   let open E3_simple in
   let params = { grammar=g; p_of_tm=p_of_tm } in
-  E3_simple.earley 
+  earley 
     params
     e
     txt 
@@ -66,5 +84,28 @@ let _ = (
   assert([0;1;2;3;4;5] = rs))
 
 (* How fast is the earley parser? In a top-level, the following
-   returns in about 1s. Compiled this whole file takes about 0.3 s. *)
-let o = run_earley_string "1111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111"
+   returns in about 1s. *)
+let f () = run_earley_string (String.make 100 '1')
+let _ = start_stop "example 833" f
+
+let f () = run_earley_string (String.make 200 '1')
+let _ = start_stop "example u5o" f
+
+
+(**********************************************************************)
+(* using arrays as datastructure *)
+
+let run_earley_string txt = (
+  let open E3_array in
+  let params = { grammar=g; p_of_tm=p_of_tm } in
+  earley 
+    params
+    e
+    txt 
+    (String.length txt))
+
+let f () = run_earley_string (String.make 100 '1')
+let _ = start_stop "example 86f" f
+
+let f () = run_earley_string (String.make 200 '1')
+let _ = start_stop "example 17y" f

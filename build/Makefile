@@ -9,7 +9,7 @@ OCAMLDOC=$(shell command -v ocamldoc.opt || command -v ocamldoc || echo missing_
 WARNINGS=-w -8#
 COMPFLAGS=$(WARNINGS)
 
-E3=e3_core.cmo e3_simple.cmo
+E3=e3_core.cmo e3_simple.cmo e3_array.cmo
 CMO=$(E3) 
 
 NATIVES=e3_examples.native e3_test.native
