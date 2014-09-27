@@ -17,12 +17,16 @@ type tm = int
 (** Symbols are either nts or tms *)
 type sym = int
 
-(** The parameters for Earley are the grammar (a list of rules), and a
-    function {p_of_tm} which takes a terminal and a substring, and returns
-    the prefixes (represented as an index) of the substrings that can be
+(** An item, a tuple representing an Earley item of the form E -> alpha.beta,i,j *)
+type nt_item = nt * sym list * sym list * int * int
+
+(** The parameters for Earley are the grammar (encoded as a function
+    nt_items_for_nt, see {E3_examples} for an example), and a function
+    {p_of_tm} which takes a terminal and a substring, and returns the
+    prefixes (represented as an index) of the substrings that can be
     parsed by that terminal. *)
 type 'a params = {
-  grammar: (nt*sym list) list;
+  nt_items_for_nt: nt -> int -> nt_item list;
   p_of_tm: tm -> ('a*int*int) -> int list }
 
 (** The result of parsing is an oracle which, given a list of symbols

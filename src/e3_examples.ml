@@ -51,6 +51,14 @@ let g = [
   (e,[a1]);
   (e,[eps])]
 
+(* we encode the grammar in as a function that, given an nt and an
+   index, returns the corresponding earley items *)
+
+let nt_items_for_nt=(fun nt i ->
+  let _ = assert(nt=e) in
+  [(e,[],[e;e;e],i,i);
+   (e,[],[a1],i,i);
+   (e,[],[eps],i,i)])
 
 
 
@@ -59,7 +67,7 @@ let g = [
 
 let run_earley_string txt = (
   let open E3_simple in
-  let params = { grammar=g; p_of_tm=p_of_tm } in
+  let params = { nt_items_for_nt=nt_items_for_nt; p_of_tm=p_of_tm } in
   earley 
     params
     e
@@ -97,7 +105,7 @@ let _ = start_stop "example u5o" f
 
 let run_earley_string txt = (
   let open E3_array in
-  let params = { grammar=g; p_of_tm=p_of_tm } in
+  let params = { nt_items_for_nt=nt_items_for_nt; p_of_tm=p_of_tm } in
   earley 
     params
     e

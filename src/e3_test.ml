@@ -33,13 +33,20 @@ let g = [
   (e,[a1]);
   (e,[eps])]
 
+let nt_items_for_nt=(fun nt i ->
+  let _ = assert(nt=e) in
+  [(e,[],[e;e;e],i,i);
+   (e,[],[a1],i,i);
+   (e,[],[eps],i,i)])
+
+
 
 (**********************************************************************)
 (* process grammar and input with earley *)
 
 let run_earley_string txt = (
   let open E3_simple in
-  let params = { grammar=g; p_of_tm=p_of_tm } in
+  let params = { nt_items_for_nt=nt_items_for_nt; p_of_tm=p_of_tm } in
   E3_simple.earley 
     params
     e
