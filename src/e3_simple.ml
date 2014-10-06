@@ -105,7 +105,12 @@ module Sets_maps = (struct
       try 
         let h = Hashtbl.find t k in
         Hashtbl.fold (fun k _ acc -> f k acc) h acc
-      with | Not_found -> acc)
+      with | Not_found -> acc);
+    mbk_cod_empty=(fun k t ->  
+        try
+          let h = Hashtbl.find t k in  (* invariant: all cod hashtables are non-empty *)
+          false
+        with | Not_found -> true);
   }
 
   let map_complete_key n = {

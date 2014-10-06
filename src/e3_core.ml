@@ -56,6 +56,7 @@ type 'a mbk = {
   mbk_empty: unit -> 't;
   mbk_add_cod: 'key -> 'value -> 't -> 't;
   mbk_fold_cod: 'b. 'key -> ('value -> 'b -> 'b) -> 't -> 'b -> 'b;
+  mbk_cod_empty: 'key -> 't -> bool;
 } constraint 'a = <
   mbk_key: 'key;
   mbk_value: 'value;
@@ -299,95 +300,103 @@ let loop2 ctxt s0 = (
   (* FIXME add a case construct rather than dests *)
   match ops.dest_item itm0 with
   | `NTITM nitm -> (
-    let complete = ops.b2_nil nitm in
-    match complete with
-    | true -> (
-      let citm = ops.mk_sym_coord (ops.nt2 nitm, ops.nt_dot_i9 nitm, ops.nt_dot_j9 nitm) in
-      let k = (ops.sym_dot_i9 citm (* FIXME could be from dot_i9 nitm *),ops.sym6 citm) in
-      (* FIXME check whether citm has already been done? *)
-      (*let citms = ctxt.maps.map_complete_key.find2 k s0.complete5 in *)
-      match false (* ctxt.sets.set_sym_item.std_mem citm citms *) with (* FIXME this optimization didn't buy much *)
-      | true -> s0
+      let complete = ops.b2_nil nitm in
+      match complete with
+      | true -> (
+          let citm = ops.mk_sym_coord (ops.nt2 nitm, ops.nt_dot_i9 nitm, ops.nt_dot_j9 nitm) in
+          let k = (ops.sym_dot_i9 citm (* FIXME could be from dot_i9 nitm *),ops.sym6 citm) in
+          (* FIXME check whether citm has already been done? *)
+          (*let citms = ctxt.maps.map_complete_key.find2 k s0.complete5 in *)
+          match false (* ctxt.sets.set_sym_item.std_mem citm citms *) with (* FIXME this optimization didn't buy much *)
+          | true -> s0
+          | false -> (
+              (* let bitms = ctxt.maps.map_blocked_key.find2 k s0.blocked5 in *)
+              let f1 bitm s1 = cut ctxt bitm citm s1 in
+              (* O(n. ln n) *)
+              (* let s0 = ctxt.sets.set_nt_item.fold f1 bitms s0 in *)
+              let s0 = ctxt.maps.map_blocked_key.mbk_fold_cod k f1 s0.blocked5 s0 in
+              let s0 = {s0 with 
+                        complete5=(ctxt.maps.map_complete_key.mck_add_cod k citm s0.complete5)} 
+              in
+              (* we also update the oracle at this point; FIXME this appears very costly *)
+              let f1 bitm o5 = update_oracle ctxt o5 (bitm,ops.sym_dot_j9 citm) in
+              (* O(n. ln n) *)
+              let s0 = {s0 with oracle5=(ctxt.maps.map_blocked_key.mbk_fold_cod k f1 s0.blocked5 s0.oracle5) } in
+              s0))
       | false -> (
-        (* let bitms = ctxt.maps.map_blocked_key.find2 k s0.blocked5 in *)
+          let bitm = nitm in
+          let sym = ops.hd_b2 bitm in
+          let k = (ops.nt_dot_j9 bitm,sym) in
+          (* let bitms = ctxt.maps.map_blocked_key.find2 k s0.blocked5 in *)
+          let new_key = ctxt.maps.map_blocked_key.mbk_cod_empty k s0.blocked5 in
+          let s0 = {s0 with
+                    blocked5=(ctxt.maps.map_blocked_key.mbk_add_cod k bitm s0.blocked5)}
+          in
+          (* we should also process the blocked item against the relevant complete items *)
+          (* let citms = ctxt.maps.map_complete_key.find2 k s0.complete5 in *)
+          let f1 citm s1 = cut ctxt bitm citm s1 in
+          (* O(n. ln n) *)
+          let s0 = ctxt.maps.map_complete_key.mck_fold_cod k f1 s0.complete5 s0 in
+          (* we also update the oracle at this point; FIXME this appears very costly *)
+          let f1 citm o5 = update_oracle ctxt o5 (bitm,ops.sym_dot_j9 citm) in
+          (* O(n. ln n) *)
+          let s0 = {s0 with oracle5=(ctxt.maps.map_complete_key.mck_fold_cod k f1 s0.complete5 s0.oracle5) } in
+          (* the invariant should be: if (j,nt) is nonempty then all
+             nt items for j are already in set_todo_done; if (j,tm) is
+             nonempty then all tmitems for j are already in
+             set_todo_done *)
+          if new_key then (
+            match ops.sym_case sym with
+            | `NT nt -> (
+                let rs = ops.nt_items_for_nt nt (ctxt.string5, ops.nt_dot_i9 nitm, ops.nt_dot_j9 nitm) in
+                let f1 s1 pnitm = (
+                  let nitm = ops.mk_item (`NTITM pnitm) in
+                  if (ctxt.sets.set_todo_done.std_mem nitm s1.todo_done5) then s1 else
+                    add_todo ctxt s1 nitm)
+                in
+                let s0 = List.fold_left f1 s0 rs in
+                s0)
+            | `TM tm -> (
+                let titm = ops.mk_item(`TMITM(ops.mk_tm_coord (tm,ops.nt_dot_j9 nitm))) in
+                if (ctxt.sets.set_todo_done.std_mem titm s0.todo_done5) then s0 else 
+                  add_todo ctxt s0 titm))
+          else
+            s0
+	      ))
+  | `TMITM titm -> (
+      let tm = ops.tm5 titm in
+      let p = ops.p_of_tm tm in
+      let i = ops.tm_dot_i9 titm in
+      let rs = p (ctxt.string5,i,ctxt.length5) in 
+      let sym = ops.sym_of_tm tm in
+      let k = (i,sym) in
+      (* lots of new complete items, so complete5 must be updated, but we must also process blocked *)
+      (* let bitms = ctxt.maps.map_blocked_key.find2 k s0.blocked5 in *)
+      (* update complete set *)
+      let f1 s1 j = (
+        let citm = ops.mk_sym_coord (sym,i,j) in
+        {s1 with complete5=(ctxt.maps.map_complete_key.mck_add_cod k citm s1.complete5)}) 
+      in
+      let s0 = List.fold_left f1 s0 rs in
+      let f2 s1 j = (
+        let i = ops.tm_dot_i9 titm in 
+        let citm = ops.mk_sym_coord (sym,i,j) in
         let f1 bitm s1 = cut ctxt bitm citm s1 in
         (* O(n. ln n) *)
-        (* let s0 = ctxt.sets.set_nt_item.fold f1 bitms s0 in *)
-        let s0 = ctxt.maps.map_blocked_key.mbk_fold_cod k f1 s0.blocked5 s0 in
-        let s0 = {s0 with 
-          complete5=(ctxt.maps.map_complete_key.mck_add_cod k citm s0.complete5)} 
-        in
-        (* we also update the oracle at this point; FIXME this appears very costly *)
+        (* let s1 = ctxt.sets.set_nt_item.fold f1 bitms s1 in *)
+        let s1 = ctxt.maps.map_blocked_key.mbk_fold_cod k f1 s1.blocked5 s1 in
+        (* we also update the oracle at this point *)
         let f1 bitm o5 = update_oracle ctxt o5 (bitm,ops.sym_dot_j9 citm) in
         (* O(n. ln n) *)
-        let s0 = {s0 with oracle5=(ctxt.maps.map_blocked_key.mbk_fold_cod k f1 s0.blocked5 s0.oracle5) } in
-        s0))
-    | false -> (
-      let bitm = nitm in
-      let sym = ops.hd_b2 bitm in
-      let k = (ops.nt_dot_j9 bitm,sym) in
-      (* let bitms = ctxt.maps.map_blocked_key.find2 k s0.blocked5 in *)
-      let s0 = {s0 with
-        blocked5=(ctxt.maps.map_blocked_key.mbk_add_cod k bitm s0.blocked5)}
+        (* let s1 = {s1 with oracle5=(ctxt.sets.set_nt_item.fold f1 bitms s1.oracle5) } in (* FIXME note bitms wasn't used linearly - but that doesn't matter because bitms isn't updated in this loop *) *)
+        let s1 = {s1 with oracle5=(ctxt.maps.map_blocked_key.mbk_fold_cod k f1 s1.blocked5 s1.oracle5) } in
+        (* and the tmoracle *)
+        let s1 = {s1 with tmoracle5=(update_tmoracle ctxt s1.tmoracle5 (tm,i,j)) } in
+        s1)
       in
-      (* we should also process the blocked item against the relevant complete items *)
-      (* let citms = ctxt.maps.map_complete_key.find2 k s0.complete5 in *)
-      let f1 citm s1 = cut ctxt bitm citm s1 in
-      (* O(n. ln n) *)
-      let s0 = ctxt.maps.map_complete_key.mck_fold_cod k f1 s0.complete5 s0 in
-      (* we also update the oracle at this point; FIXME this appears very costly *)
-      let f1 citm o5 = update_oracle ctxt o5 (bitm,ops.sym_dot_j9 citm) in
-      (* O(n. ln n) *)
-      let s0 = {s0 with oracle5=(ctxt.maps.map_complete_key.mck_fold_cod k f1 s0.complete5 s0.oracle5) } in
-      match ops.sym_case sym with
-      | `NT nt -> (
-        let rs = ops.nt_items_for_nt nt (ctxt.string5, ops.nt_dot_i9 nitm, ops.nt_dot_j9 nitm) in
-        let f1 s1 pnitm = (
-          let nitm = ops.mk_item (`NTITM pnitm) in
-          if (ctxt.sets.set_todo_done.std_mem nitm s1.todo_done5) then s1 else
-            add_todo ctxt s1 nitm)
-        in
-        let s0 = List.fold_left f1 s0 rs in
-        s0)
-      | `TM tm -> (
-        let titm = ops.mk_item(`TMITM(ops.mk_tm_coord (tm,ops.nt_dot_j9 nitm))) in
-        if (ctxt.sets.set_todo_done.std_mem titm s0.todo_done5) then s0 else 
-          add_todo ctxt s0 titm)
-	    ))
-  | `TMITM titm -> (
-    let tm = ops.tm5 titm in
-    let p = ops.p_of_tm tm in
-    let i = ops.tm_dot_i9 titm in
-    let rs = p (ctxt.string5,i,ctxt.length5) in 
-    let sym = ops.sym_of_tm tm in
-    let k = (i,sym) in
-    (* lots of new complete items, so complete5 must be updated, but we must also process blocked *)
-    (* let bitms = ctxt.maps.map_blocked_key.find2 k s0.blocked5 in *)
-    (* update complete set *)
-    let f1 s1 j = (
-      let citm = ops.mk_sym_coord (sym,i,j) in
-      {s1 with complete5=(ctxt.maps.map_complete_key.mck_add_cod k citm s1.complete5)}) 
-    in
-    let s0 = List.fold_left f1 s0 rs in
-    let f2 s1 j = (
-      let i = ops.tm_dot_i9 titm in 
-      let citm = ops.mk_sym_coord (sym,i,j) in
-      let f1 bitm s1 = cut ctxt bitm citm s1 in
-      (* O(n. ln n) *)
-      (* let s1 = ctxt.sets.set_nt_item.fold f1 bitms s1 in *)
-      let s1 = ctxt.maps.map_blocked_key.mbk_fold_cod k f1 s1.blocked5 s1 in
-      (* we also update the oracle at this point *)
-      let f1 bitm o5 = update_oracle ctxt o5 (bitm,ops.sym_dot_j9 citm) in
-      (* O(n. ln n) *)
-      (* let s1 = {s1 with oracle5=(ctxt.sets.set_nt_item.fold f1 bitms s1.oracle5) } in (* FIXME note bitms wasn't used linearly - but that doesn't matter because bitms isn't updated in this loop *) *)
-      let s1 = {s1 with oracle5=(ctxt.maps.map_blocked_key.mbk_fold_cod k f1 s1.blocked5 s1.oracle5) } in
-      (* and the tmoracle *)
-      let s1 = {s1 with tmoracle5=(update_tmoracle ctxt s1.tmoracle5 (tm,i,j)) } in
-      s1)
-    in
-    let s0 = List.fold_left f2 s0 rs in
-    (* let s0 = {s0 with complete5=(ctxt.maps.map_complete_key.add k cs s0.complete5)} in *)
-    s0))
+      let s0 = List.fold_left f2 s0 rs in
+      (* let s0 = {s0 with complete5=(ctxt.maps.map_complete_key.add k cs s0.complete5)} in *)
+      s0))
 
 let (_:unit -> YY.ty_x_loop2 -> YY.ty_x_loop2) = (fun () -> loop2 YY.x_ctxt)
 

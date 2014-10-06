@@ -68,6 +68,7 @@ type 'a mbk = {
   mbk_empty: unit -> 't;
   mbk_add_cod: 'key -> 'value -> 't -> 't;
   mbk_fold_cod: 'b. 'key -> ('value -> 'b -> 'b) -> 't -> 'b -> 'b;
+  mbk_cod_empty: 'key -> 't -> bool;
 } constraint 'a = <
   mbk_key: 'key;
   mbk_value: 'value;

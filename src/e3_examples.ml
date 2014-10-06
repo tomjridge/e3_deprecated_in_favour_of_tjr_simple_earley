@@ -1,9 +1,11 @@
 (* update GC params - only for native compiled code, not interactive
    top-level where it causes an Out_of_memory exception *)
 
+(*
 let _ = 
   let open Gc in
   set { (get()) with max_overhead=1000000; space_overhead=1000000 }
+*)
 
 (**********************************************************************)
 (* timing function *)
