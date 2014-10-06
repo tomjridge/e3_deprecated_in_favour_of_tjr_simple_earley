@@ -33,7 +33,7 @@ let g = [
   (e,[a1]);
   (e,[eps])]
 
-let nt_items_for_nt=(fun nt i ->
+let nt_items_for_nt=(fun nt (_,_,i) ->
   let _ = assert(nt=e) in
   [(e,[],[e;e;e],i,i);
    (e,[],[a1],i,i);

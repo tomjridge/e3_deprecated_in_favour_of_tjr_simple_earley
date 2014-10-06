@@ -14,7 +14,7 @@ type 'a ty_ops = {
 (*  hd_a2          : 'nt_item -> 'sym; *)
   a2             : 'nt_item -> 'sym_list;
   hd_b2          : 'nt_item -> 'sym;
-  nt_items_for_nt: 'nt -> int -> 'nt_item list;
+  nt_items_for_nt: 'nt -> 'string substring -> 'nt_item list;
   mk_item        : [`NTITM of 'nt_item | `TMITM of 'tm_item ] -> 'item;
   dest_item      : 'item -> [`NTITM of 'nt_item | `TMITM of 'tm_item ];
   tm_dot_i9      : 'tm_item -> int;
@@ -341,7 +341,7 @@ let loop2 ctxt s0 = (
       let s0 = {s0 with oracle5=(ctxt.maps.map_complete_key.mck_fold_cod k f1 s0.complete5 s0.oracle5) } in
       match ops.sym_case sym with
       | `NT nt -> (
-        let rs = ops.nt_items_for_nt nt (ops.nt_dot_j9 nitm) in
+        let rs = ops.nt_items_for_nt nt (ctxt.string5, ops.nt_dot_i9 nitm, ops.nt_dot_j9 nitm) in
         let f1 s1 pnitm = (
           let nitm = ops.mk_item (`NTITM pnitm) in
           if (ctxt.sets.set_todo_done.std_mem nitm s1.todo_done5) then s1 else

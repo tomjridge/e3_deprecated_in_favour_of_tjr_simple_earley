@@ -26,7 +26,7 @@ type 'a ty_ops = {
 (*  hd_a2          : 'nt_item -> 'sym; *)
   a2             : 'nt_item -> 'sym_list;
   hd_b2          : 'nt_item -> 'sym;
-  nt_items_for_nt: 'nt -> int -> 'nt_item list;
+  nt_items_for_nt: 'nt -> 'string substring -> 'nt_item list;
   mk_item        : [`NTITM of 'nt_item | `TMITM of 'tm_item ] -> 'item;
   dest_item      : 'item -> [`NTITM of 'nt_item | `TMITM of 'tm_item ];
   tm_dot_i9      : 'tm_item -> int;

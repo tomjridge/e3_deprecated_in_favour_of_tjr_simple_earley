@@ -225,7 +225,7 @@ let post_process ctxt s0 = (
   o)
 
 type 'a params = {
-  nt_items_for_nt: nt -> int -> nt_item list;
+  nt_items_for_nt: nt -> ('a*int*int) -> nt_item list;
   p_of_tm: tm -> ('a*int*int) -> int list }
   
 let earley params nt txt len = (

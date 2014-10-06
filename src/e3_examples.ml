@@ -1,4 +1,5 @@
-(* update GC params *)
+(* update GC params - only for native compiled code, not interactive
+   top-level where it causes an Out_of_memory exception *)
 
 let _ = 
   let open Gc in
@@ -54,7 +55,7 @@ let g = [
 (* we encode the grammar in as a function that, given an nt and an
    index, returns the corresponding earley items *)
 
-let nt_items_for_nt=(fun nt i ->
+let nt_items_for_nt=(fun nt (_,_,i) ->
   let _ = assert(nt=e) in
   [(e,[],[e;e;e],i,i);
    (e,[],[a1],i,i);
@@ -117,3 +118,10 @@ let _ = start_stop "example 86f" f
 
 let f () = run_earley_string (String.make 200 '1')
 let _ = start_stop "example 17y" f
+
+(* Sample output:
+Start example 833 ......stop in 0.22951 seconds
+Start example u5o ......stop in 1.856355 seconds
+Start example 86f ......stop in 0.219536 seconds
+Start example 17y ......stop in 1.804879 seconds
+*)

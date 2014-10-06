@@ -26,7 +26,7 @@ type nt_item = nt * sym list * sym list * int * int
     prefixes (represented as an index) of the substrings that can be
     parsed by that terminal. *)
 type 'a params = {
-  nt_items_for_nt: nt -> int -> nt_item list;
+  nt_items_for_nt: nt -> ('a*int*int) -> nt_item list;
   p_of_tm: tm -> ('a*int*int) -> int list }
 
 (** The result of parsing is an oracle which, given a list of symbols
