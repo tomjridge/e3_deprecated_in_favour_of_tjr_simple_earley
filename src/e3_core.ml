@@ -386,10 +386,10 @@ let loop2 ctxt s0 = (
         (* let s1 = ctxt.sets.set_nt_item.fold f1 bitms s1 in *)
         let s1 = ctxt.maps.map_blocked_key.mbk_fold_cod k f6 s1.blocked5 s1 in
         (* we also update the oracle at this point *)
-        let f7 bitm o5 = update_oracle ctxt o5 (bitm,ops.sym_dot_j9 citm) in
+        let f7 bitm s1 = {s1 with oracle5=(update_oracle ctxt s1.oracle5 (bitm,ops.sym_dot_j9 citm)) } in
         (* O(n. ln n) *)
         (* let s1 = {s1 with oracle5=(ctxt.sets.set_nt_item.fold f1 bitms s1.oracle5) } in (* FIXME note bitms wasn't used linearly - but that doesn't matter because bitms isn't updated in this loop *) *)
-        let s1 = {s1 with oracle5=(ctxt.maps.map_blocked_key.mbk_fold_cod k f7 s1.blocked5 s1.oracle5) } in
+        let s1 = ctxt.maps.map_blocked_key.mbk_fold_cod k f7 s1.blocked5 s1 in
         (* and the tmoracle *)
         let s1 = {s1 with tmoracle5=(update_tmoracle ctxt s1.tmoracle5 (tm,i,j)) } in
         s1)
