@@ -341,9 +341,9 @@ let loop2 ctxt s0 = (
           (* O(n. ln n) *)
           let f4 citm s1 = {s1 with oracle5=(update_oracle ctxt s1.oracle5 (bitm,ops.sym_dot_j9 citm)) } in        
           let s0 = map_complete_key.mck_fold_cod k f4 s0.complete5 s0 in
-          (* the invariant should be: if (j,nt) is nonempty then all
-             nt items for j are already in set_todo_done; if (j,tm) is
-             nonempty then all tmitems for j are already in
+          (* the invariant should be: (j,nt) is nonempty iff all
+             nt items for j are already in set_todo_done; (j,tm) is
+             nonempty iff all tmitems for j are already in
              set_todo_done; FIXME in which case we don't have to check
              whether all these new items are already in set_todo_done
              when new_key - they aren't *)
