@@ -314,14 +314,12 @@ let loop2 ctxt s0 = (
           match false (* sets.set_sym_item.std_mem citm citms *) with (* FIXME this optimization didn't buy much *)
           | true -> s0
           | false -> (
-              (* let bitms = map_blocked_key.find2 k s0.blocked5 in *)
-              let f1 bitm s1 = cut ctxt bitm citm s1 in
               (* O(n. ln n) *)
-              (* let s0 = sets.set_nt_item.fold f1 bitms s0 in *)
+              (* process complete item against blocked items *)
+              let f1 bitm s1 = cut ctxt bitm citm s1 in
               let s0 = map_blocked_key.mbk_fold_cod k f1 s0.blocked5 s0 in
-              let s0 = {s0 with 
-                        complete5=(map_complete_key.mck_add_cod k citm s0.complete5)} 
-              in
+              (* record complete item *)
+              let s0 = {s0 with complete5=(map_complete_key.mck_add_cod k citm s0.complete5)} in
               (* we also update the oracle at this point; FIXME this appears very costly *)
               let f2 bitm s1 = {s1 with oracle5=(update_oracle ctxt s1.oracle5 (bitm,ops.sym_dot_j9 citm))} in
               (* O(n. ln n) *)
@@ -333,22 +331,22 @@ let loop2 ctxt s0 = (
           let k = (ops.nt_dot_j9 bitm,sym) in
           (* let bitms = map_blocked_key.find2 k s0.blocked5 in *)
           let new_key = map_blocked_key.mbk_cod_empty k s0.blocked5 in
-          let s0 = {s0 with
-                    blocked5=(map_blocked_key.mbk_add_cod k bitm s0.blocked5)}
-          in
-          (* we should also process the blocked item against the relevant complete items *)
-          (* let citms = map_complete_key.find2 k s0.complete5 in *)
-          let f3 citm s1 = cut ctxt bitm citm s1 in
+          (* record blocked item *)
+          let s0 = {s0 with blocked5=(map_blocked_key.mbk_add_cod k bitm s0.blocked5)} in
+          (* process blocked item against complete items *)
           (* O(n. ln n) *)
+          let f3 citm s1 = cut ctxt bitm citm s1 in
           let s0 = map_complete_key.mck_fold_cod k f3 s0.complete5 s0 in
           (* we also update the oracle at this point; FIXME this appears very costly *)
-          let f4 citm s1 = {s1 with oracle5=(update_oracle ctxt s1.oracle5 (bitm,ops.sym_dot_j9 citm)) } in
           (* O(n. ln n) *)
+          let f4 citm s1 = {s1 with oracle5=(update_oracle ctxt s1.oracle5 (bitm,ops.sym_dot_j9 citm)) } in        
           let s0 = map_complete_key.mck_fold_cod k f4 s0.complete5 s0 in
           (* the invariant should be: if (j,nt) is nonempty then all
              nt items for j are already in set_todo_done; if (j,tm) is
              nonempty then all tmitems for j are already in
-             set_todo_done *)
+             set_todo_done; FIXME in which case we don't have to check
+             whether all these new items are already in set_todo_done
+             when new_key - they aren't *)
           if new_key then (
             match ops.sym_case sym with
             | `NT nt -> (
