@@ -1,57 +1,27 @@
 SHELL=bash
 
-CAMLC=$(shell command -v ocamlc.opt || command -v ocamlc || echo missing_ocamlc)
-CAMLOPT=$(shell command -v ocamlopt.opt || command -v ocamlopt || echo missing_ocamlopt)
-CAMLDEP=$(shell command -v ocamldep.opt || command -v ocamldep || echo missing_ocamldep) -one-line
-OCAMLDOC=$(shell command -v ocamldoc.opt || command -v ocamldoc || echo missing_ocamldoc)
+SRC_DIR:=../src
+MLS_TO_EXEC:=e3_examples.ml e3_test.ml # executables
+IGNORE_FOR_LIB:=$(MLS_TO_EXEC) interactive.ml # don't want these in the lib
+MLS_FOR_LIB:=$(shell ocamlfind ocamldep -sort *.ml)
+MLS_FOR_LIB:=$(filter-out $(IGNORE_FOR_LIB), $(MLS_FOR_LIB)) # p1_examples.ml is an executable
+CMO:=$(MLS_FOR_LIB:.ml=.cmo)
+
+LIB:=e3
 
 # FIXME remove this suppresion of warnings
-WARNINGS=-w -8#
-COMPFLAGS=$(WARNINGS)
+WARNINGS:=-w -8#
+COMPFLAGS:=$(WARNINGS)
 
-E3=e3_core.cmo e3_simple.cmo e3_array.cmo
-CMO=$(E3) 
+all:
+	make before_all
+	make $(CMO) e3.cma e3.cmxa e3_examples.native e3_test.native
 
-NATIVES=e3_examples.native e3_test.native
-
-all: e3.cma e3.cmxa $(NATIVES)
-
-e3.cma: $(CMO)
-	$(CAMLC) $(CAMLCINCLUDES) -a -o $@ $(CMO)
-
-e3.cmxa: $(CMO:.cmo=.cmx)
-	$(CAMLOPT) -a -o $@ $(CMO:.cmo=.cmx)
-
-$(NATIVES): %.native: %.ml e3.cmxa
-	$(CAMLOPT) $(COMPFLAGS) $(CAMLOPTINCLUDES) -o $@ e3.cmxa $<
-
-
-# Default rules
-.SUFFIXES: .ml .mli .cmo .cmi .cmx
-
-.ml.cmo:
-	$(CAMLC) $(CAMLCINCLUDES) $(COMPFLAGS) -c $<
-
-.mli.cmi:
-	$(CAMLC) $(CAMLCINCLUDES) $(COMPFLAGS) -c $<
-
-.ml.cmx:
-	$(CAMLOPT) $(FORPACK) $(COMPFLAGS) $(CAMLOPTINCLUDES) -c $<
-
-
-doc: e3_core.mli e3_simple.mli
-	$(OCAMLDOC) -html e3_core.mli e3_simple.mli
-
-
-depend:
-	$(CAMLDEP) $(INCLUDES) *.mli *.ml >.depend
-
-include .depend
-
+include Makefile.include
 
 clean:
-	rm -f $(CMO) $(CMO:.cmo=.cmi) $(CMO:.cmo=.cmx) $(NATIVES:.native=.cmo) $(NATIVES:.native=.cmi) $(NATIVES:.native=.cmx) 
-	rm -f *.cma *.cmxa *.a $(CMO:.cmo=.o) *.native $(NATIVES:.native=.o) 
+	rm -f *.ml *.mli
+	rm -f $(CMO) $(CMO:.cmo=.cmi) $(CMO:.cmo=.cmx) $(MLS_TO_EXEC:.ml=.cmo) $(MLS_TO_EXEC:.ml=.cmi) $(MLS_TO_EXEC:.native=.cmx) 
+	rm -f *.cmx *.cma *.cmxa *.a $(CMO:.cmo=.o) *.native $(MLS_TO_EXEC:.ml=.o) 
 	rm -f *.{html,css}
 
-realclean:
