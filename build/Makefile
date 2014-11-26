@@ -20,8 +20,6 @@ all:
 include Makefile.include
 
 clean:
-	rm -f *.ml *.mli
-	rm -f $(CMO) $(CMO:.cmo=.cmi) $(CMO:.cmo=.cmx) $(MLS_TO_EXEC:.ml=.cmo) $(MLS_TO_EXEC:.ml=.cmi) $(MLS_TO_EXEC:.native=.cmx) 
-	rm -f *.cmx *.cma *.cmxa *.a $(CMO:.cmo=.o) *.native $(MLS_TO_EXEC:.ml=.o) 
+	rm -f *.ml *.mli *.cmo *.cmi *.cmx *.native *.a *.o *.cma *.cmxa
 	rm -f *.{html,css}
 
