@@ -20,6 +20,6 @@ all:
 include Makefile.include
 
 clean:
-	rm -f *.ml *.mli *.cmo *.cmi *.cmx *.native *.a *.o *.cma *.cmxa
+	rm -f *.ml *.mli *.cmo *.cmi *.cmx *.native *.a *.o *.cma *.cmxa .depend
 	rm -f *.{html,css}
 
