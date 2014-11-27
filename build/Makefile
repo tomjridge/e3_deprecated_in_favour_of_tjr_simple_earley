@@ -13,8 +13,7 @@ LIB:=e3
 WARNINGS:=-w -8#
 COMPFLAGS:=$(WARNINGS)
 
-all:
-	make before_all
+all: before_all
 	make $(CMO) e3.cma e3.cmxa e3_examples.native e3_test.native
 
 include Makefile.include
