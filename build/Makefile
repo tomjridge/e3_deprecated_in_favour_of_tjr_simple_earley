@@ -12,12 +12,12 @@ CAMLOPTINCLUDES:=str.cmxa
 
 COMPFLAGS?=# maybe set some additional compilation options
 
-MLS:=$(shell ocamlfind ocamldep -sort *.ml *.mli)
+MLS:=$(filter-out interactive.ml, $(shell ocamlfind ocamldep -sort *.ml *.mli))
 SRC_DIR:=../src
 
 MLS_TO_EXEC:=e3_examples.ml e3_test.ml # executables
 IGNORE_FOR_LIB:=$(MLS_TO_EXEC) interactive.ml # don't want these in the lib
-MLS_FOR_LIB_1:=$(shell ocamlfind ocamldep -sort *.ml)
+MLS_FOR_LIB_1:=$(shell ocamlfind ocamldep -sort $(MLS))
 MLS_FOR_LIB:=$(filter-out $(IGNORE_FOR_LIB), $(MLS_FOR_LIB_1)) # p1_examples.ml is an executable
 LIB:=e3
 CMO:=$(MLS_FOR_LIB:.ml=.cmo)
