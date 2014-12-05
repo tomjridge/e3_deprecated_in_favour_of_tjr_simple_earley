@@ -13,7 +13,8 @@ LIB:=e3
 
 
 all: before_all
-	$(MAKE) cmo cmx $(LIB).cma $(LIB).cmxa $(MLS_TO_EXEC:.ml=.native)
+	$(MAKE) cmo cmx 
+	$(MAKE) $(LIB).cma $(LIB).cmxa $(MLS_TO_EXEC:.ml=.native)
 
 
 include Makefile.include
