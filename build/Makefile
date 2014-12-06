@@ -2,6 +2,7 @@ SHELL:=bash
 
 CAMLCINCLUDES:=str.cma
 CAMLOPTINCLUDES:=str.cmxa
+COMPFLAGS:=-w -8 -w -23 -w -26
 
 MLS:=$(filter-out interactive.ml, $(shell ocamlfind ocamldep -sort *.ml *.mli))
 SRC_DIR:=../src
