@@ -11,3 +11,10 @@ Start example u5o ......stop in 2.549507 seconds
 Start example 86f ......stop in 0.271831 seconds
 Start example 17y ......stop in 2.456628 seconds
 
+Some timings with poly (but no heap resize):
+
+Start example 833 ......stop in 0.300432 seconds
+Start example u5o ......stop in 2.609769 seconds
+Start example 86f ......stop in 0.285397 seconds
+Start example 17y ......stop in 2.538197 seconds
+
