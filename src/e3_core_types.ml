@@ -53,9 +53,9 @@ type 'a std = {
 >
 
 type 'a ctxt_set = {
-  set_todo_done: <elt:'todo_done; t:'set_todo_done> std;
+  set_todo_done: <elt:'item; t:'set_todo_done> std;
 } constraint 'a = <
-  todo_done: 'todo_done; (* nt_item+tm_item *)
+  todo_done: 'item; (* nt_item+tm_item *)
   set_todo_done: 'set_todo_done;
 >
 
@@ -134,7 +134,7 @@ type ('string,'a,'s,'m) ty_ctxt = {
   item       :'item       ;
   string     :'string     ;
 > constraint 's = <
-  todo_done: 'todo_done; 
+  todo_done: 'item; 
   set_todo_done: 'set_todo_done;
 > constraint 'm = <
   sym:'sym;

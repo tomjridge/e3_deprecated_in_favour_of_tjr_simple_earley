@@ -12,23 +12,7 @@ module type TA = sig
   type sym_list
 
   type item (* = nt_item+tm_item *)
-
-  type 'string ty_ops = 'a E3_core_types.ty_ops constraint 'a = <
-    nt         :nt         ;
-    tm         :tm         ;
-    sym        :sym        ;
-    tm_item    :tm_item    ;
-    sym_item   :sym_item   ;
-    sym_list   :sym_list   ;
-    nt_item    :nt_item    ;
-    item       :item       ;
-    string     :'string     ;
-  >
-
-  type todo_done = item
   
-  type set_nt_item
-  type set_sym_item
   type set_todo_done
 
   type map_blocked_key
@@ -48,13 +32,13 @@ module type TA = sig
     item       :item       ;
     string     :'string     ;
   > constraint 's = <
-    todo_done: todo_done; (* nt_item+tm_item *)
+    todo_done: item; 
     set_todo_done: set_todo_done;
   > constraint 'm = <
     sym:sym;
     tm:tm;
-    nt_item: 'nt_item;
-    sym_item: 'sym_item;
+    nt_item: nt_item;
+    sym_item: sym_item;
     sym_list   :sym_list   ;
     map_blocked_key: map_blocked_key;  
     map_complete_key: map_complete_key;  
@@ -72,8 +56,6 @@ module type TA = sig
       map_tm_int: map_tm_int;  
     >
 
-  (*  val x_ctxt: string ty_ctxt' *)
-
 end
 
 (* output type of functor E3 below; the functor E3 specializes some of these types to the input XX types *)
@@ -86,11 +68,11 @@ end
 
 module E3 (XX: TA) : TB with type 'a ty_ctxt = 'a XX.ty_ctxt and type ty_loop2 = XX.ty_loop2 = struct
 
-(*
+(* for interactive development
+
+module XX : TA = (val (Obj.magic 0) : TA)
 
 *)
-
-
 
   type 'a ty_ctxt = 'a XX.ty_ctxt
   type ty_loop2 = XX.ty_loop2
@@ -98,7 +80,7 @@ module E3 (XX: TA) : TB with type 'a ty_ctxt = 'a XX.ty_ctxt and type ty_loop2 =
   open E3_core_types (* for record selectors *)  
   open XX
   (* for this to have the meaning we think it does, we must be working with binarized grammars - see note 2014-01-10; still safe to process if |b2| >=1 *)
-  let update_oracle ctxt m (itm,l) = (
+  let update_oracle : 'a ty_ctxt -> map_sym_sym_int_int -> nt_item * int -> map_sym_sym_int_int = (fun ctxt m (itm,l) ->
     let ops = ctxt.item_ops5 in
     let (syms1,sym2) = (ops.a2 itm,ops.hd_b2 itm) in
     let (i,k,j) = (ops.nt_dot_i9 itm,ops.nt_dot_j9 itm,l) in
@@ -108,7 +90,7 @@ module E3 (XX: TA) : TB with type 'a ty_ctxt = 'a XX.ty_ctxt and type ty_loop2 =
   
   (*  let update_oracle m (itm,l) = m *)
   
-  let update_tmoracle ctxt m (tm,i,j) = (
+  let update_tmoracle : 'a ty_ctxt -> map_tm_int -> tm*int*int -> map_tm_int = (fun ctxt m (tm,i,j) ->
     let key = (tm,i) in
     let m = ctxt.maps.map_tm_int.mti_add_cod key j m in
     m)
@@ -126,7 +108,7 @@ module E3 (XX: TA) : TB with type 'a ty_ctxt = 'a XX.ty_ctxt and type ty_loop2 =
   
   (* bitm is an nt_item *)
   (* O(ln n) *)
-  let cut ctxt bitm citm s0 = (
+  let cut: 'a ty_ctxt -> nt_item -> sym_item -> ty_loop2 -> ty_loop2 = (fun ctxt bitm citm s0 ->
     let ops = ctxt.item_ops5 in
     let nitm = ops.mk_item (`NTITM ((ops.shift_a2_b2_c2 bitm) |> (fun x -> ops.with_j9 x (ops.sym_dot_j9 citm)))) in
     let s0 = (
@@ -138,7 +120,7 @@ module E3 (XX: TA) : TB with type 'a ty_ctxt = 'a XX.ty_ctxt and type ty_loop2 =
     in
     s0)
   
-  let loop2 ctxt s0 = (
+  let loop2: 'a ty_ctxt -> ty_loop2 -> ty_loop2 = (fun ctxt s0 ->
     let maps = ctxt.maps in
     let sets = ctxt.sets in
     let map_complete_key = maps.map_complete_key in
