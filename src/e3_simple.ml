@@ -225,7 +225,7 @@ module CC = struct
 
 end (* CC *)  
 
-
+(*
 module AA : E3_core.TA with 
   type nt = CC.nt
   and type tm = CC.tm
@@ -249,6 +249,10 @@ module AA : E3_core.TA with
 end
 
 module BB = E3_core.E3(AA)
+*)
+
+module BB = E3_core.E3(CC)
+
 
 open E3_core_types
 open CC
