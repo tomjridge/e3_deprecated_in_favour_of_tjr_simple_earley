@@ -1,6 +1,5 @@
 (* update GC params - only for native compiled code, not interactive
    top-level where it causes an Out_of_memory exception *)
-
 (*
 let _ = 
   let open Gc in

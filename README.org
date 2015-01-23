@@ -2,3 +2,12 @@
   - functorization
     - introduced functors to e3_simple.ml, code compiles to e3_simple.ml[i]
     - now need to introduce similar changes to e3_array, after first introducing a .mli file for e3_array
+
+Sample timings with functors (but no heap resize):
+
+tr61@pc1177:/tmp/l/github/super/e3/build$ ./e3_examples.native 
+Start example 833 ......stop in 0.297599 seconds
+Start example u5o ......stop in 2.549507 seconds
+Start example 86f ......stop in 0.271831 seconds
+Start example 17y ......stop in 2.456628 seconds
+
