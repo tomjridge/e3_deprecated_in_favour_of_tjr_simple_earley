@@ -1,0 +1,4 @@
+
+  - functorization
+    - introduced functors to e3_simple.ml, code compiles to e3_simple.ml[i]
+    - now need to introduce similar changes to e3_array, after first introducing a .mli file for e3_array
