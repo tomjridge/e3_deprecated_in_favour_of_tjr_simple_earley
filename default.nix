@@ -23,7 +23,9 @@ let
       configurePhase = "true"; 	# Skip configure
   
 #      installPhase = "true";
-    
+
+       postInstall="cp -a build $out";
+           
       createFindlibDestdir = true;
     };
 
