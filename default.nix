@@ -1,3 +1,4 @@
+{ }:
 # nix-build default.nix -A e3.build
 # nix-shell default.nix -A e3.build
 # nix-shell default.nix -A e3.post_install
@@ -5,8 +6,6 @@ let
     pkgs = import <nixpkgs> {};
     stdenv = pkgs.stdenv;
     fetchgit = pkgs.fetchgit;
-in rec {
-
    mke3 = { ocaml, findlib}:
    rec {
     build= stdenv.mkDerivation {
@@ -38,10 +37,7 @@ in rec {
 
 
   };
-
-
-  e3 = mke3 { ocaml=pkgs.ocaml_4_02_1; findlib=pkgs.ocamlPackages_4_02_1.findlib; };
-  e3_4_01_0 = mke3 { ocaml=pkgs.ocaml_4_01_0; findlib=pkgs.ocamlPackages_4_01_0.findlib; };
-
-
-}
+    
+in 
+(mke3 { ocaml=pkgs.ocaml_4_02_1; findlib=pkgs.ocamlPackages_4_02_1.findlib; }).build
+#  e3_4_01_0 = mke3 { ocaml=pkgs.ocaml_4_01_0; findlib=pkgs.ocamlPackages_4_01_0.findlib; };
