@@ -24,7 +24,7 @@ let
   
 #      installPhase = "true";
 
-       postInstall="cp -a build $out";
+       postInstall="cp -R build src $out";
            
       createFindlibDestdir = true;
     };
