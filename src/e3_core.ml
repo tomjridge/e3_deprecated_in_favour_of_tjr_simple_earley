@@ -1,3 +1,5 @@
+(** Earley code *)
+
 (* specialize the types from e3_core_types, so that there are almost no type variables *)
 module type TA = sig
 

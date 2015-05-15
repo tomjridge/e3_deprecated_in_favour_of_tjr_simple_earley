@@ -20,6 +20,11 @@ all: before_all
 
 include Makefile.include
 
+ocamldoc: FORCE
+	-mkdir ocamldoc
+	$(OCAMLDOC) -d ocamldoc -html $(MLS)
 
 clean: before_clean
+
+FORCE:
 

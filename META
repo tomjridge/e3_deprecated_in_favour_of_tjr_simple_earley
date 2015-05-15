@@ -1,0 +1,6 @@
+name="e3"
+description="E3 earley parser library"
+version="0.0.1"
+depends=""
+archive(byte)="e3.cma"
+archive(native)="e3.cmxa"
