@@ -1,3 +1,5 @@
+(** Earley code *)
+
 type 'a substring = 'a * int * int
 
 type 'a ty_ops = {

@@ -1,3 +1,5 @@
+(** A simple interface to Earley, using arrays as datastructures. *)
+
 (* example datastructures for earley; not efficient *)
 
 open E3_core
