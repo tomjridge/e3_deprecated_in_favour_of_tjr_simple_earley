@@ -6,15 +6,15 @@ module CC = struct
   
   open E3_core_types
   
-  type nt = int (* assumed even *)
-  type tm = int (* odd *)
-  type sym = int
-  type nt_item = nt * sym list * sym list * int * int
-  type tm_item = tm * int
-  type sym_item = sym * int * int
-  type item = [ `NTITM of nt_item | `TMITM of tm_item ]
+  type 'string nt = int (* assumed even *)
+  type 'string tm = int (* odd *)
+  type 'string sym = int
+  type 'string nt_item = 'string nt * 'string sym list * 'string sym list * int * int
+  type 'string tm_item = 'string tm * int
+  type 'string sym_item = 'string sym * int * int
+  type 'string item = [ `NTITM of 'string nt_item | `TMITM of 'string tm_item ]
   
-  type ty_oracle = (sym list * sym) -> (int * int) -> int list
+  type 'string ty_oracle = ('string sym list * 'string sym) -> (int * int) -> int list
   
   let mk_ops nt_items_for_nt p_of_tm = (
     let id = fun x -> x in
@@ -98,11 +98,11 @@ module CC = struct
           done
         in
         arr);
-      std_add=(fun (k:item) t -> 
+      std_add=(fun (k:'string item) t -> 
         let (i,j) = ij_of_item k in
         let tbl = t.(i).(j) in
         Hashtbl.replace tbl k (); t);
-      std_mem=(fun (k:item) t -> 
+      std_mem=(fun (k:'string item) t -> 
         let (i,j) = ij_of_item k in
         let tbl = t.(i).(j) in
         Hashtbl.mem tbl k);
@@ -198,48 +198,48 @@ module CC = struct
   
   end)
 
-  type map_blocked_key = (int*sym, (nt_item, unit) Hashtbl.t) Hashtbl.t
-  type map_complete_key = (int*sym, (sym_item,unit) Hashtbl.t) Hashtbl.t
-  type map_sym_sym_int_int = (sym list*sym*int*int, (int,unit) Hashtbl.t) Hashtbl.t
-  type map_tm_int = (tm * int, (int, unit) Hashtbl.t) Hashtbl.t
-  type sym_list = sym list
+  type 'string map_blocked_key = (int*'string sym, ('string nt_item, unit) Hashtbl.t) Hashtbl.t
+  type 'string map_complete_key = (int*'string sym, ('string sym_item,unit) Hashtbl.t) Hashtbl.t
+  type 'string map_sym_sym_int_int = ('string sym list*'string sym*int*int, (int,unit) Hashtbl.t) Hashtbl.t
+  type 'string map_tm_int = ('string tm * int, (int, unit) Hashtbl.t) Hashtbl.t
+  type 'string sym_list = 'string sym list
 
-  type set_todo_done = (item, unit) Hashtbl.t array array
+  type 'string set_todo_done = ('string item, unit) Hashtbl.t array array
 
-  type ty_loop2 = 'a E3_core_types.ty_loop2 
+  type 'string ty_loop2 = ('string,'a) E3_core_types.ty_loop2 
   constraint 'a = <
-      item: item;
-      set_todo_done: set_todo_done;
-      map_blocked_key: map_blocked_key;  
-      map_complete_key: map_complete_key;  
-      map_sym_sym_int_int: map_sym_sym_int_int;  
-      map_tm_int: map_tm_int;  
+      item: 'string item;
+      set_todo_done: 'string set_todo_done;
+      map_blocked_key: 'string map_blocked_key;  
+      map_complete_key: 'string map_complete_key;  
+      map_sym_sym_int_int: 'string map_sym_sym_int_int;  
+      map_tm_int: 'string map_tm_int;  
     >
 
   type 'string ty_ctxt = ('string,'a,'s,'m) E3_core_types.ty_ctxt 
   constraint 'a = <
-    nt         :nt         ;
-    tm         :tm         ;
-    sym        :sym        ;
-    tm_item    :tm_item    ;
-    sym_item   :sym_item   ;
-    sym_list   :sym_list   ;
-    nt_item    :nt_item    ;
-    item       :item       ;
+    nt         :'string nt         ;
+    tm         :'string tm         ;
+    sym        :'string sym        ;
+    tm_item    :'string tm_item    ;
+    sym_item   :'string sym_item   ;
+    sym_list   :'string sym_list   ;
+    nt_item    :'string nt_item    ;
+    item       :'string item       ;
     string     :'string     ;
   > constraint 's = <
-    todo_done: item; 
-    set_todo_done: set_todo_done;
+    todo_done: 'string item; 
+    set_todo_done: 'string set_todo_done;
   > constraint 'm = <
-    sym:sym;
-    tm:tm;
-    nt_item: nt_item;
-    sym_item: sym_item;
-    sym_list   :sym_list   ;
-    map_blocked_key: map_blocked_key;  
-    map_complete_key: map_complete_key;  
-    map_sym_sym_int_int: map_sym_sym_int_int;  
-    map_tm_int: map_tm_int;  
+    sym:'string sym;
+    tm:'string tm;
+    nt_item: 'string nt_item;
+    sym_item: 'string sym_item;
+    sym_list   :'string sym_list   ;
+    map_blocked_key: 'string map_blocked_key;  
+    map_complete_key: 'string map_complete_key;  
+    map_sym_sym_int_int: 'string map_sym_sym_int_int;  
+    map_tm_int: 'string map_tm_int;  
   >
 
 
@@ -286,15 +286,15 @@ let post_process ctxt s0 = (
     ctxt.maps.map_sym_sym_int_int.mssii_elts_cod (syms1,sym2,i,j) o in
   o)
 
-type nt = CC.nt
-type tm = CC.tm
-type sym = CC.sym
-type nt_item = CC.nt_item
-type ty_oracle = CC.ty_oracle
+type 'a nt = 'a CC.nt
+type 'a tm = 'a CC.tm
+type 'a sym = 'a CC.sym
+type 'a nt_item = 'a CC.nt_item
+type 'a ty_oracle = 'a CC.ty_oracle
 
 type 'a params = {
-  nt_items_for_nt: nt -> ('a*int*int) -> nt_item list;
-  p_of_tm: tm -> ('a*int*int) -> int list }
+  nt_items_for_nt: 'a nt -> ('a*int*int) -> 'a nt_item list;
+  p_of_tm: 'a tm -> ('a*int*int) -> int list }
   
 let earley params nt txt len = (
   let nt_items_for_nt = params.nt_items_for_nt in
@@ -303,6 +303,6 @@ let earley params nt txt len = (
   let (ctxt,s0) = earley' nt_items_for_nt p_of_tm txt len init_items in
   post_process ctxt s0)
 
-let (_:'a params -> nt -> 'a -> int -> ty_oracle) = earley
+let (_:'a params -> 'a nt -> 'a -> int -> 'a ty_oracle) = earley
 
 

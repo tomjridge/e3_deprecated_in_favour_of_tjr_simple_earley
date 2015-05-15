@@ -83,7 +83,7 @@ let o = run_earley_string txt
 (* check the type of o *)
 let _ = 
   let open E3_simple in
-  let (_ : sym list * sym -> int * int -> int list) = o in
+  let (_ : 'a sym list * 'a sym -> int * int -> int list) = o in
   ()
 
 (* if we want to cut [E E] and E between positions 0 and 5, where do

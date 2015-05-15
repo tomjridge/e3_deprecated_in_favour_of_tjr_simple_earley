@@ -148,7 +148,7 @@ type ('string,'a,'s,'m) ty_ctxt = {
   map_tm_int: 'map_tm_int;  
 >
 
-type 'a ty_loop2 = {
+type ('string,'a) ty_loop2 = {
   todo_done5: 'set_todo_done;
   todo5: 'item list;
   oracle5: 'map_sym_sym_int_int;
@@ -156,6 +156,7 @@ type 'a ty_loop2 = {
   blocked5: 'map_blocked_key;
   complete5: 'map_complete_key;
 } constraint 'a = <
+(*  string: 'string; (* needed if 'item is dependent on 'string *) *)
   item: 'item;
   set_todo_done: 'set_todo_done;
   map_blocked_key: 'map_blocked_key;  

@@ -1,15 +1,15 @@
 
 (** Nonterminals must be even integers *)
-type nt = int
+type 'a nt = int
 
 (** Terminals must be odd integers *)
-type tm = int
+type 'a tm = int
 
 (** Symbols are either nts or tms *)
-type sym = int
+type 'a sym = int
 
 (** An item, a tuple representing an Earley item of the form E -> alpha.beta,i,j *)
-type nt_item = nt * sym list * sym list * int * int
+type 'a nt_item = 'a nt * 'a sym list * 'a sym list * int * int
 
 (** The parameters for Earley are the grammar (encoded as a function
     nt_items_for_nt, see {E3_examples} for an example), and a function
@@ -17,14 +17,14 @@ type nt_item = nt * sym list * sym list * int * int
     prefixes (represented as an index) of the substrings that can be
     parsed by that terminal. *)
 type 'a params = {
-  nt_items_for_nt: nt -> ('a*int*int) -> nt_item list;
-  p_of_tm: tm -> ('a*int*int) -> int list }
+  nt_items_for_nt: 'a nt -> ('a*int*int) -> 'a nt_item list;
+  p_of_tm: 'a tm -> ('a*int*int) -> int list }
 
 (** The result of parsing is an oracle which, given a list of symbols
     alpha, and a symbol X, and a span (i,j), returns the list of integers
     k such that (i,k) can be parsed as alpha, and (k,j) can be parsed as
     X. *)
-type ty_oracle = (sym list * sym) -> (int * int) -> int list
+type 'a ty_oracle = ('a sym list * 'a sym) -> (int * int) -> int list
 
-val earley: 'a params -> nt -> 'a -> int -> ty_oracle
+val earley: 'a params -> 'a nt -> 'a -> int -> 'a ty_oracle
 

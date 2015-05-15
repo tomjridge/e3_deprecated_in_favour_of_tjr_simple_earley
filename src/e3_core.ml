@@ -3,72 +3,72 @@
 (* specialize the types from e3_core_types, so that there are almost no type variables *)
 module type TA = sig
 
-  type nt
-  type tm
-  type sym
+  type 'string nt
+  type 'string tm
+  type 'string sym
 
-  type nt_item (* = pre_nt_item*int*int *)
+  type 'string nt_item (* = pre_nt_item*int*int *)
 
-  type tm_item (* = tm*int *)
-  type sym_item (* = sym*int*int *)
-  type sym_list
+  type 'string tm_item (* = tm*int *)
+  type 'string sym_item (* = sym*int*int *)
+  type 'string sym_list
 
-  type item (* = nt_item+tm_item *)
+  type 'string item (* = nt_item+tm_item *)
   
-  type set_todo_done
+  type 'string set_todo_done
 
-  type map_blocked_key
-  type map_complete_key
-  type map_sym_sym_int_int
-  type map_tm_int
+  type 'string map_blocked_key
+  type 'string map_complete_key
+  type 'string map_sym_sym_int_int
+  type 'string map_tm_int
 
   type 'string ty_ctxt = ('string,'a,'s,'m) E3_core_types.ty_ctxt 
   constraint 'a = <
-    nt         :nt         ;
-    tm         :tm         ;
-    sym        :sym        ;
-    tm_item    :tm_item    ;
-    sym_item   :sym_item   ;
-    sym_list   :sym_list   ;
-    nt_item    :nt_item    ;
-    item       :item       ;
+    nt         :'string nt         ;
+    tm         :'string tm         ;
+    sym        :'string sym        ;
+    tm_item    :'string tm_item    ;
+    sym_item   :'string sym_item   ;
+    sym_list   :'string sym_list   ;
+    nt_item    :'string nt_item    ;
+    item       :'string item       ;
     string     :'string     ;
   > constraint 's = <
-    todo_done: item; 
-    set_todo_done: set_todo_done;
+    todo_done: 'string item; 
+    set_todo_done: 'string set_todo_done;
   > constraint 'm = <
-    sym:sym;
-    tm:tm;
-    nt_item: nt_item;
-    sym_item: sym_item;
-    sym_list   :sym_list   ;
-    map_blocked_key: map_blocked_key;  
-    map_complete_key: map_complete_key;  
-    map_sym_sym_int_int: map_sym_sym_int_int;  
-    map_tm_int: map_tm_int;  
+    sym:'string sym;
+    tm:'string tm;
+    nt_item: 'string nt_item;
+    sym_item: 'string sym_item;
+    sym_list   :'string sym_list   ;
+    map_blocked_key: 'string map_blocked_key;  
+    map_complete_key: 'string map_complete_key;  
+    map_sym_sym_int_int: 'string map_sym_sym_int_int;  
+    map_tm_int: 'string map_tm_int;  
   >
 
-  type ty_loop2 = 'a E3_core_types.ty_loop2 
+  type 'string ty_loop2 = ('string,'a) E3_core_types.ty_loop2 
     constraint 'a = <
-      item: item;
-      set_todo_done: set_todo_done;
-      map_blocked_key: map_blocked_key;  
-      map_complete_key: map_complete_key;  
-      map_sym_sym_int_int: map_sym_sym_int_int;  
-      map_tm_int: map_tm_int;  
+      item: 'string item;
+      set_todo_done: 'string set_todo_done;
+      map_blocked_key: 'string map_blocked_key;  
+      map_complete_key: 'string map_complete_key;  
+      map_sym_sym_int_int: 'string map_sym_sym_int_int;  
+      map_tm_int: 'string map_tm_int;  
     >
 
-end
+end  (* TA *)
 
 (* output type of functor E3 below; the functor E3 specializes some of these types to the input XX types *)
 module type TB = sig
-  type 'a ty_ctxt
-  type ty_loop2
-  val earley: 'a ty_ctxt -> ty_loop2 -> ty_loop2
+  type 'string ty_ctxt
+  type 'string ty_loop2
+  val earley: 'string ty_ctxt -> 'string ty_loop2 -> 'string ty_loop2
 end
 
 
-module E3 (XX: TA) : TB with type 'a ty_ctxt = 'a XX.ty_ctxt and type ty_loop2 = XX.ty_loop2 = struct
+module E3 (XX: TA) : TB with type 'a ty_ctxt = 'a XX.ty_ctxt and type 'a ty_loop2 = 'a XX.ty_loop2 = struct
 
 (* for interactive development
 
@@ -77,12 +77,12 @@ module XX : TA = (val (Obj.magic 0) : TA)
 *)
 
   type 'a ty_ctxt = 'a XX.ty_ctxt
-  type ty_loop2 = XX.ty_loop2
+  type 'a ty_loop2 = 'a XX.ty_loop2
 
   open E3_core_types (* for record selectors *)  
   open XX
   (* for this to have the meaning we think it does, we must be working with binarized grammars - see note 2014-01-10; still safe to process if |b2| >=1 *)
-  let update_oracle : 'a ty_ctxt -> map_sym_sym_int_int -> nt_item * int -> map_sym_sym_int_int = (fun ctxt m (itm,l) ->
+  let update_oracle : 'string ty_ctxt -> 'string map_sym_sym_int_int -> 'string nt_item * int -> 'string map_sym_sym_int_int = (fun ctxt m (itm,l) ->
     let ops = ctxt.item_ops5 in
     let (syms1,sym2) = (ops.a2 itm,ops.hd_b2 itm) in
     let (i,k,j) = (ops.nt_dot_i9 itm,ops.nt_dot_j9 itm,l) in
@@ -92,7 +92,7 @@ module XX : TA = (val (Obj.magic 0) : TA)
   
   (*  let update_oracle m (itm,l) = m *)
   
-  let update_tmoracle : 'a ty_ctxt -> map_tm_int -> tm*int*int -> map_tm_int = (fun ctxt m (tm,i,j) ->
+  let update_tmoracle : 'string ty_ctxt -> 'string map_tm_int -> ('string tm)*int*int -> 'string map_tm_int = (fun ctxt m (tm,i,j) ->
     let key = (tm,i) in
     let m = ctxt.maps.map_tm_int.mti_add_cod key j m in
     m)
@@ -110,7 +110,7 @@ module XX : TA = (val (Obj.magic 0) : TA)
   
   (* bitm is an nt_item *)
   (* O(ln n) *)
-  let cut: 'a ty_ctxt -> nt_item -> sym_item -> ty_loop2 -> ty_loop2 = (fun ctxt bitm citm s0 ->
+  let cut: 'string ty_ctxt -> 'string nt_item -> 'string sym_item -> 'string ty_loop2 -> 'string ty_loop2 = (fun ctxt bitm citm s0 ->
     let ops = ctxt.item_ops5 in
     let nitm = ops.mk_item (`NTITM ((ops.shift_a2_b2_c2 bitm) |> (fun x -> ops.with_j9 x (ops.sym_dot_j9 citm)))) in
     let s0 = (
@@ -122,7 +122,7 @@ module XX : TA = (val (Obj.magic 0) : TA)
     in
     s0)
   
-  let loop2: 'a ty_ctxt -> ty_loop2 -> ty_loop2 = (fun ctxt s0 ->
+  let loop2: 'string ty_ctxt -> 'string ty_loop2 -> 'string ty_loop2 = (fun ctxt s0 ->
     let maps = ctxt.maps in
     let sets = ctxt.sets in
     let map_complete_key = maps.map_complete_key in
@@ -229,6 +229,6 @@ module XX : TA = (val (Obj.magic 0) : TA)
         s0))
   
   (* if porting to an imperative language, use a while loop for the following *)
-  let rec earley: 'a ty_ctxt -> ty_loop2 -> ty_loop2 = fun ctxt s0 -> (if todo_is_empty s0 then s0 else (earley ctxt (loop2 ctxt s0)))
+  let rec earley: 'string ty_ctxt -> 'string ty_loop2 -> 'string ty_loop2 = fun ctxt s0 -> (if todo_is_empty s0 then s0 else (earley ctxt (loop2 ctxt s0)))
   
 end
