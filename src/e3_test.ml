@@ -56,7 +56,7 @@ let run_earley_string txt = (
 let txt = "1111"
 let len = String.length txt
 
-let o = run_earley_string txt
+let (o,tmo) = run_earley_string txt
 
 let asbss = [
   ([],[e;e;e]);

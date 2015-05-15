@@ -1,5 +1,7 @@
 (*
 
+#directory "/tmp/l/github/super/e3";;
+
 #mod_use "e3_core_types.ml";;
 #mod_use "e3_core.ml";;
 #mod_use "e3_simple.ml";;

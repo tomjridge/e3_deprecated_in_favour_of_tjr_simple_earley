@@ -78,7 +78,7 @@ let run_earley_string txt = (
 
 let txt = "11111"
 
-let o = run_earley_string txt
+let (o,tmo) = run_earley_string txt
 
 (* check the type of o *)
 let _ = 

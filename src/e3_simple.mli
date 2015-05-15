@@ -35,4 +35,7 @@ type 'a params = {
     X. *)
 type 'a ty_oracle = ('a sym list * 'a sym) -> (int * int) -> int list
 
-val earley: 'a params -> 'a nt -> 'a -> int -> 'a ty_oracle
+(** Parsing also returns information about which extents correspond to terminals. *)
+type 'a ty_tmoracle = ('a tm) -> (int * int) -> bool
+
+val earley: 'a params -> 'a nt -> 'a -> int -> ('a ty_oracle * 'a ty_tmoracle)

@@ -287,13 +287,18 @@ let post_process ctxt s0 = (
   let o = s0.oracle5 in
   let o = fun (syms1,sym2) -> fun (i,j) -> 
     ctxt.maps.map_sym_sym_int_int.mssii_elts_cod (syms1,sym2,i,j) o in
-  o)
+  let tmo = s0.tmoracle5 in
+  let tmo = fun tm -> fun (i,j) ->
+    ctxt.maps.map_tm_int.mti_find_cod (tm,i) j tmo
+  in
+  (o,tmo))
 
 type 'string nt = 'string CC.nt
 type 'string tm = 'string CC.tm
 type 'string sym = 'string CC.sym
 type 'string nt_item = 'string CC.nt_item
 type 'string ty_oracle = 'string CC.ty_oracle
+type 'string ty_tmoracle = 'string CC.tm -> int * int -> bool
 
 type 'a params = {
   nt_items_for_nt: 'a nt -> 'a substring -> 'a nt_item list;
@@ -306,6 +311,6 @@ let earley params nt txt len = (
   let (ctxt,s0) = earley' nt_items_for_nt p_of_tm txt len init_items in
   post_process ctxt s0)
 
-let (_:'a params -> 'a nt -> 'a -> int -> 'a ty_oracle) = earley
+let (_:'a params -> 'a nt -> 'a -> int -> ('a ty_oracle * 'a ty_tmoracle)) = earley
 
 
