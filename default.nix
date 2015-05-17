@@ -1,14 +1,12 @@
 { }:
-# nix-build default.nix -A e3.build
-# nix-shell default.nix -A e3.build
-# nix-shell default.nix -A e3.post_install
 let 
-    pkgs = import <nixpkgs> {};
-    stdenv = pkgs.stdenv;
-    fetchgit = pkgs.fetchgit;
-   mke3 = { ocaml, findlib}:
-   rec {
-    build= stdenv.mkDerivation {
+  pkgs = import <nixpkgs> {};
+  stdenv = pkgs.stdenv;
+  fetchgit = pkgs.fetchgit;
+  ocaml=pkgs.ocaml_4_02_1; 
+  findlib=pkgs.ocamlPackages_4_02_1.findlib;
+in
+stdenv.mkDerivation {
       name = "e3";
     
   #    src = fetchgit {
@@ -22,24 +20,7 @@ let
     
       configurePhase = "true"; 	# Skip configure
   
-#      installPhase = "true";
-
-       postInstall="cp -R build src $out";
+      postInstall="cp -R build src $out";
            
       createFindlibDestdir = true;
-    };
-
-    # get a nix-shell environment with p3 installed via ocamlfind
-    post_install = stdenv.mkDerivation {
-      name = "post_install";
-    
-      buildInputs = [ ocaml findlib build ];
-  
-    };
-
-
-  };
-    
-in 
-(mke3 { ocaml=pkgs.ocaml_4_02_1; findlib=pkgs.ocamlPackages_4_02_1.findlib; }).build
-#  e3_4_01_0 = mke3 { ocaml=pkgs.ocaml_4_01_0; findlib=pkgs.ocamlPackages_4_01_0.findlib; };
+}
