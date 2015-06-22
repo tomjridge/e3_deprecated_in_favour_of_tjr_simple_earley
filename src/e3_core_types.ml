@@ -102,7 +102,7 @@ type 'a mssii = {
 
 type 'a ctxt_map = {
   map_blocked_key: <mbk_key:int*'sym; mbk_value:'nt_item; t:'map_blocked_key> mbk;
-  map_complete_key: <mck_key:int*'sym; mck_value:'sym_item; t:'map_complete_key> mck;
+  map_complete_key: <mck_key:int*'sym; mck_value:'sym_item; t:'map_complete_key> mck; (* FIXME FIXME value can be just int *)
   map_sym_sym_int_int: <mssii_key:'sym_list*'sym*int*int; mssii_value:int; t:'map_sym_sym_int_int> mssii;
   map_tm_int: <mti_key:'tm*int; mti_value:int; t:'map_tm_int> mti;
 } constraint 'a = <
