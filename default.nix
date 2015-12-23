@@ -3,8 +3,8 @@ let
   pkgs = import <nixpkgs> {};
   stdenv = pkgs.stdenv;
   fetchgit = pkgs.fetchgit;
-  ocaml=pkgs.ocaml_4_02_1; 
-  findlib=pkgs.ocamlPackages_4_02_1.findlib;
+  ocaml=pkgs.ocaml; 
+  findlib=pkgs.ocamlPackages.findlib;
 in
 stdenv.mkDerivation {
       name = "e3";
@@ -20,7 +20,7 @@ stdenv.mkDerivation {
     
       configurePhase = "true"; 	# Skip configure
   
-      postInstall="cp -R build src $out";
+      postInstall="cp -R _build/src/* $out";
            
       createFindlibDestdir = true;
 }
