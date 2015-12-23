@@ -51,17 +51,13 @@ module type Mssii = sig
   val mssii_elts_cod: key -> t -> value list
 end
 
-module type A_type = sig
-  type t
-end
+module Default_map_impl(Key_ord: Map.OrderedType)(Value_ord:Map.OrderedType) = struct
 
-module Default_map_impl(Ord: Map.OrderedType)(Value:A_type) = struct
-
-  type key = Ord.t
-  type value = Value.t
+  type key = Key_ord.t
+  type value = Value_ord.t
                  
-  module M = Map.Make(Ord)
-  module S = Set.Make(Ord)
+  module M = Map.Make(Key_ord)
+  module S = Set.Make(Value_ord)
   type t = S.t M.t
   let map_empty () = M.empty
   let map_add_cod k v m = (
