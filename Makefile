@@ -1,8 +1,14 @@
 SHELL:=bash
 
+OB:=ocamlbuild
+
 all:
-	ocamlbuild -I src e3_test.native e3_examples.native 
-	ocamlbuild -I src e3.cma e3.cmxa
+	$(OB) -I src symbol.cmo
+
+
+#	$(OB) -I src e3_test.native e3_examples.native 
+#	$(OB) -I src e3.cma e3.cmxa
+
 #cd build && $(MAKE)
 
 install: all
@@ -13,7 +19,7 @@ test: all
 	./_build/src/e3_test.native
 
 clean:
-	ocamlbuild -clean
+	$(OB) -clean
 # cd build && $(MAKE) clean
 
 
