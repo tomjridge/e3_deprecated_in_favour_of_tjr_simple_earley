@@ -59,12 +59,26 @@ module Default_map_impl(Key_ord: Map.OrderedType)(Value_ord:Map.OrderedType) = s
   module M = Map.Make(Key_ord)
   module S = Set.Make(Value_ord)
   type t = S.t M.t
+  let find k m = try M.find k m with _ -> S.empty
   let map_empty () = M.empty
   let map_add_cod k v m = (
-    let s = try M.find k m with _ -> S.empty in
+    let s = find k m in
     let s' = S.add v s in
     let m' = M.add k s' m in
     m')
-  let map_fold_cod = () (* FIXME *)
+  let map_fold_cod k f m b0 = (
+    let s = find k m in
+    let r = S.fold f s b0 in
+    r)
+  let map_cod_empty k m = S.is_empty (find k m)
+  let map_find_cod k v m = S.mem v (find k m)
+  let mssii_elts_cod k m = (find k m) |> S.elements
    
 end
+
+module Tmp_ko : Map.OrderedType = struct
+  type t = int
+  let compare = (Pervasives.compare:int -> int -> int)
+end
+
+module X: Mssii = Default_map_impl(Tmp_ko)(Tmp_ko)
