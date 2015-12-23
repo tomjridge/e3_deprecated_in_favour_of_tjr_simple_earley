@@ -1,3 +1,3 @@
 MLS:=$(filter-out e3_examples.ml e3_test.ml interactive.ml, $(shell cd src && ocamlfind ocamldep -sort *.ml))
 mods_for_lib:
-	echo $(MLS) | amm -f mods_for_lib.scala
+	echo $(MLS) | .tr61/mods_for_lib.scala
