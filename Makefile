@@ -3,7 +3,7 @@ SHELL:=bash
 OB:=ocamlbuild
 
 all:
-	$(OB) -I src symbol.cmo
+	$(OB) -I src map_set_types.cmo
 
 
 #	$(OB) -I src e3_test.native e3_examples.native 
