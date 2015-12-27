@@ -11,9 +11,9 @@ module
     (Sets: Sets_t with module Item=Item)
     (Maps: Maps_t with module Symbol=Symbol and module Item=Item)
     (Ctxt: Ctxt_t with module Sets=Sets and module Maps=Maps)
-    (Input: Input_t with module Substring=Substring)
     (Grammar: Grammar_t with
       module Substring=Substring and module Symbol=Symbol and module Item=Item)
+    (Input: Input_t with module Substring=Substring)
     (Earley_state: Earley_state_t with module Item=Item and module Ctxt=Ctxt)
 
 = struct
