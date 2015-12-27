@@ -3,7 +3,7 @@ SHELL:=bash
 OB:=ocamlbuild -I src
 
 all:
-	$(OB) core_types.cmo map_set_types.cm 
+	$(OB) core_types.cmo map_set_types.cmo core.cmo
 
 cmi:
 	$(OB) symbol.cmi substring.cmi

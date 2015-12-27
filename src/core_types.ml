@@ -11,6 +11,8 @@ module type Substring_t = sig
 
   type substring (* = Substring of (string_t * int * int) *)
 
+  val mk_substring: string_t * int * int -> substring
+  
 end
 
 
@@ -72,42 +74,62 @@ module type Item_t = sig
 end
 
 
-module type Ctxt_map = sig
+module type Maps_t = sig
 
+  module Symbol : Symbol_t
+  open Symbol
+
+  module Item : Item_t
+  open Item
+  
   open Map_set_types
 
-  module Map_blocked_key : Mbk
+  type mbk_key = int * sym
+  type mbk_value = nt_item
+  module Map_blocked_key :
+    (Mbk with type key:=mbk_key and type value:=mbk_value)
 
-  module Map_complete_key : Mck
+  type mck_key = int * sym
+  type mck_value = sym_item
+  module Map_complete_key :
+    (Mck with type key:=mck_key and type value:=mck_value)
 
-  module Map_sym_sym_int_int : Mssii
+  type mssii_key = sym_list * sym * int * int
+  type mssii_value = int
+  module Map_sym_sym_int_int :
+    (Mssii with type key:=mssii_key and type value:=mssii_value)
 
-  module Map_tm_int : Mti
+  type mti_key = tm * int
+  type mti_value = int
+  module Map_tm_int :
+    (Mti with type key:=mti_key and type value:=mti_value)
 
 end
 
 
-module type Ctxt_set = sig
+module type Sets_t = sig
+
+  module Item : Item_t
 
   open Map_set_types
 
-  module Set_todo_done : Set_t
+  module Set_todo_done :
+    (Set_t with type elt:=Item.item)
 
 end
-
 
 module type Ctxt_t = sig
 
-  module Maps : Ctxt_map
-  module Sets : Ctxt_set
+  module Sets : Sets_t
 
+  module Maps : Maps_t
+  
 end
 
 
 module type Input_t = sig
 
   module Substring : Substring_t
-
   open Substring
       
   type input_t = {
@@ -118,7 +140,25 @@ module type Input_t = sig
 end
 
 
-module type Earley_state_type = sig
+module type Grammar_t = sig
+
+  module Substring: Substring_t
+  module Symbol : Symbol_t
+  module Item : Item_t
+  open Substring
+  open Symbol
+  open Item
+
+  type grammar_t = {
+    nt_items_for_nt: (nt -> substring -> nt_item list);
+    p_of_tm: (tm -> substring -> int list) 
+  }
+  
+end
+
+
+
+module type Earley_state_t = sig
 
   module Item : Item_t
   module Ctxt : Ctxt_t
