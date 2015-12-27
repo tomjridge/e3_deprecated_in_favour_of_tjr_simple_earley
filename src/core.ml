@@ -186,5 +186,8 @@ match ops.dest_item itm0 with
     (* let s0 = {s0 with complete5=(map_complete_key.add k cs s0.complete5)} in *)
     s0))
 
-  
+
+  (* if porting to an imperative language, use a while loop for the following *)
+  let rec earley: grammar_t -> input_t -> ty_loop2 -> ty_loop2 = fun g0 i0 s0 -> (if todo_is_empty s0 then s0 else (earley g0 i0 (loop2 g0 i0 s0)))
+
 end
