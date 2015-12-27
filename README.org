@@ -18,3 +18,15 @@ Start example u5o ......stop in 2.609769 seconds
 Start example 86f ......stop in 0.285397 seconds
 Start example 17y ......stop in 2.538197 seconds
 
+
+* 2015-12-25 
+
+  - map/set types
+    - functorize, or parameterize? these can't be see from the
+      outside; but they do depend on an ordering; so keep types
+      abstract... but the ordering is an essential part of having the
+      type; but maybe this is only done at initialization time; so we
+      need a way of saying (when instantiating the fixed but abstract
+      types) that this operation belongs to this type, even though we
+      are ultimately going to assert the type is equal to some other
+      type

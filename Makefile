@@ -1,13 +1,15 @@
 SHELL:=bash
 
-OB:=ocamlbuild
+OB:=ocamlbuild -I src
 
 all:
-	$(OB) -I src map_set_types.cmo
+	$(OB) core_types.cmo map_set_types.cm 
 
+cmi:
+	$(OB) symbol.cmi substring.cmi
 
-#	$(OB) -I src e3_test.native e3_examples.native 
-#	$(OB) -I src e3.cma e3.cmxa
+#	$(OB) src e3_test.native e3_examples.native 
+#	$(OB) src e3.cma e3.cmxa
 
 #cd build && $(MAKE)
 
@@ -23,4 +25,4 @@ clean:
 # cd build && $(MAKE) clean
 
 
--include Makefile.local
+-include local.mk
