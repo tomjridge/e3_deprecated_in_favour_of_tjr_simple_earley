@@ -11,7 +11,7 @@ module type Substring_t = sig
 
   type substring (* = Substring of (string_t * int * int) *)
 
-  val mk_substring: string_t * int * int -> substring
+  (*  val mk_substring: string_t * int * int -> substring *)
   
 end
 
@@ -94,15 +94,15 @@ module type Maps_t = sig
   module Map_complete_key :
     (Mck with type key:=mck_key and type value:=mck_value)
 
-  type mssii_key = sym_list * sym * int * int
-  type mssii_value = int
-  module Map_sym_sym_int_int :
-    (Mssii with type key:=mssii_key and type value:=mssii_value)
-
   type mti_key = tm * int
   type mti_value = int
   module Map_tm_int :
     (Mti with type key:=mti_key and type value:=mti_value)
+  
+  type mssii_key = sym_list * sym * int * int
+  type mssii_value = int
+  module Map_sym_sym_int_int :
+    (Mssii with type key:=mssii_key and type value:=mssii_value)
 
 end
 
@@ -117,15 +117,6 @@ module type Sets_t = sig
     (Set_t with type elt:=Item.item)
 
 end
-
-module type Ctxt_t = sig
-
-  module Sets : Sets_t
-
-  module Maps : Maps_t
-  
-end
-
 
 module type Input_t = sig
 
@@ -150,22 +141,45 @@ module type Grammar_t = sig
   open Item
 
   type grammar_t = {
-    nt_items_for_nt: (nt -> substring -> nt_item list);
-    p_of_tm: (tm -> substring -> int list) 
+    (* the first int is the start of the nt_itm in whose rhs this nt
+       occurs; the second int is the index from which we are trying to
+       parse an nt *)
+    nt_items_for_nt: (nt -> (string_t*int*int) -> nt_item list);
+    (* the second int is typically the length of the input *)
+    p_of_tm: (tm -> (string_t*int*int) -> int list) 
+  }
+  
+end
+
+
+module type Ctxt_t = sig
+  
+  include Input_t
+
+  include Grammar_t with module Substring:=Substring
+    
+  type ctxt_t = {
+    g0:grammar_t;
+    i0:input_t
   }
   
 end
 
 
 
+
+
+
+
 module type Earley_state_t = sig
 
   module Item : Item_t
-  module Ctxt : Ctxt_t
+  module Sets : Sets_t
+  module Maps : Maps_t
 
   open Item
-  open Ctxt.Maps
-  open Ctxt.Sets
+  open Maps
+  open Sets
 
   type ty_loop2 = {
     todo_done5: Set_todo_done.t;

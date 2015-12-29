@@ -30,3 +30,84 @@ Start example 17y ......stop in 2.538197 seconds
       types) that this operation belongs to this type, even though we
       are ultimately going to assert the type is equal to some other
       type
+
+* 2015-12-28 different languages
+
+  - substring
+  - symbol
+    - CA sym_case
+    - DC sym_of_tm
+  - item
+    - DC mk_tm_coord
+    - PR tm5
+    - DC mk_sym_Coord
+    - PR sym6
+    - PR nt2
+    -    shift
+    - PR b2_nil
+    - PR a2
+    - PR hd_b2
+    - DC mk_item
+    - CA dest_item
+    - PR tm_dot_i9
+    - PR sym_dot_i9
+    - PR sym_dot_j9
+    - PR nt_dot_i9
+    - PR nt_dot_j9
+    -    with_j9
+
+
+  - grammar
+  - substring+symbol+item
+    - nt_items_for_nt 
+  - substring + symbol (but really this is to a "completed tm_item")
+    - p_of_tm
+
+
+  - input
+    - string,length
+
+
+---
+
+order of fixing things:
+
+
+
+                                                    
+                                                    
+                                                    
+                                                    
+#+BEGIN_SRC                                                    
+                                                    
+  +-----------string-------------+                  
+  v            v                 v                  
+ grammar      substring        input(string,length) 
+                                                    
+                                                    
+                                                    
+    symbol                                          
+     v                                              
+    item                                            
+     v                                              
+    sets,maps                                       
+                                                    
+
+#+END_SRC                                                    
+                                                    
+                                                    
+                                                    
+                                                    
+
+---
+
+we want the string type to be polymorphic, and hence also the grammar
+and the input; this argues for making these parameters of a record
+(ctxt)
+
+the impl of substring can be hidden
+
+the impl of symbol is another parameter, but typically this is at a
+different level; these can typically be parameterized using functors,
+since they are not really a runtime thing; also, there are typically a
+fixed small number of sets,maps impls (array, binary tree)

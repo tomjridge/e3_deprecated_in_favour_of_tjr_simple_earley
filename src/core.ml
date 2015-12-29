@@ -6,26 +6,22 @@ open Core_types
 
 module
   E3
-    (Substring: Substring_t) (Symbol: Symbol_t)
+    (Symbol: Symbol_t)
     (Item: Item_t with module Symbol=Symbol)
     (Sets: Sets_t with module Item=Item)
     (Maps: Maps_t with module Symbol=Symbol and module Item=Item)
-    (Ctxt: Ctxt_t with module Sets=Sets and module Maps=Maps)
-    (Grammar: Grammar_t with
-      module Substring=Substring and module Symbol=Symbol and module Item=Item)
-    (Input: Input_t with module Substring=Substring)
-    (Earley_state: Earley_state_t with module Item=Item and module Ctxt=Ctxt)
+    (Substring: Substring_t) 
+    (Ctxt: Ctxt_t with module Substring=Substring and module Symbol=Symbol and module Item=Item)
+    (Earley_state: Earley_state_t with module Item=Item and module Sets=Sets and module Maps=Maps)
 
 = struct
 
-  open Substring
   open Symbol
   open Item
-  open Ctxt
   open Maps
   open Sets
-  open Input
-  open Grammar
+  open Substring
+  open Ctxt
   open Earley_state
 
   
@@ -80,11 +76,10 @@ module
 
 
   (* perhaps grammar and input should be included in the state? *)
-  let loop2:
-    (Grammar.grammar_t)
-    -> (Input.input_t)
-    -> ty_loop2 -> ty_loop2
-    = (fun g0 i0 s0 ->
+  let step: (Ctxt.ctxt_t) -> ty_loop2 -> ty_loop2 = (fun c0 ->
+      let g0 = c0.g0 in
+      let i0 = c0.i0 in
+fun s0 ->
         
 let (s0,itm0) = pop_todo s0 in
 (* FIXME add a case construct rather than dests *)
@@ -136,7 +131,7 @@ match ops.dest_item itm0 with
         if new_key then (
           match ops.sym_case sym with
           | `NT nt -> (
-              let rs = g0.nt_items_for_nt nt (mk_substring(i0.string5, ops.nt_dot_i9 nitm, ops.nt_dot_j9 nitm)) in
+              let rs = g0.nt_items_for_nt nt (i0.string5, ops.nt_dot_i9 nitm, ops.nt_dot_j9 nitm) in
               let f1 s1 pnitm = (
                 let nitm = ops.mk_item (`NTITM pnitm) in
                 if (Set_todo_done.std_mem nitm s1.todo_done5) then s1 else
@@ -155,7 +150,7 @@ match ops.dest_item itm0 with
     let tm = ops.tm5 titm in
     let p = g0.p_of_tm tm in
     let i = ops.tm_dot_i9 titm in
-    let rs = p (mk_substring(i0.string5,i,i0.length5)) in 
+    let rs = p (i0.string5,i,i0.length5) in 
     let sym = ops.sym_of_tm tm in
     let k = (i,sym) in
     (* lots of new complete items, so complete5 must be updated, but we must also process blocked *)
@@ -186,8 +181,12 @@ match ops.dest_item itm0 with
     (* let s0 = {s0 with complete5=(map_complete_key.add k cs s0.complete5)} in *)
     s0))
 
-
   (* if porting to an imperative language, use a while loop for the following *)
-  let rec earley: grammar_t -> input_t -> ty_loop2 -> ty_loop2 = fun g0 i0 s0 -> (if todo_is_empty s0 then s0 else (earley g0 i0 (loop2 g0 i0 s0)))
+  let earley: ctxt_t -> ty_loop2 -> ty_loop2 = (fun c0 ->
+      let stp = step c0 in
+      let rec loop s0 = (
+        if todo_is_empty s0 then s0 else (loop (stp s0)))
+      in
+      loop)
 
 end

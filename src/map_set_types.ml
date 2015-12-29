@@ -51,6 +51,7 @@ module type Mssii = sig
   val mssii_elts_cod: key -> t -> value list
 end
 
+(*  FIXME probably have to restrict the type t in the following so that keys and valu types are explicit, and impl type is abstract *)
 module Default_map_impl(Key_ord: Map.OrderedType)(Value_ord:Map.OrderedType) = struct
 
   type key = Key_ord.t
@@ -82,3 +83,15 @@ module Tmp_ko : Map.OrderedType = struct
 end
 
 module X: Mssii = Default_map_impl(Tmp_ko)(Tmp_ko)
+
+
+module Default_set_impl(Elt_ord: Set.OrderedType) = struct
+
+  module S = Set.Make(Elt_ord)
+  type elt = Elt_ord.t
+  type t = S.t
+  let std_empty () = S.empty
+  let std_add x s = S.add x s
+  let std_mem x s = S.mem x s
+
+end
