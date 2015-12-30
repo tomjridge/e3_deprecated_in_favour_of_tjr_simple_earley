@@ -111,3 +111,450 @@ the impl of symbol is another parameter, but typically this is at a
 different level; these can typically be parameterized using functors,
 since they are not really a runtime thing; also, there are typically a
 fixed small number of sets,maps impls (array, binary tree)
+
+* 2015-12-30 module type errors
+
+  - type of simple.E3 without last arg:
+    - 
+
+module E3 :
+  functor
+    (Earley_state : sig
+                      module Symbol :
+                        sig
+                          type nt = Symbol.nt
+                          type tm = Symbol.tm
+                          type sym = Symbol.sym
+                        end
+                      module Item :
+                        sig
+                          module Symbol :
+                            sig
+                              type nt = Symbol.nt
+                              type tm = Symbol.tm
+                              type sym = Symbol.sym
+                            end
+                          type tm_item = Item.tm_item
+                          type nt_item = Item.nt_item
+                          type sym_item = Item.sym_item
+                          type sym_list = Item.sym_list
+                          type item = Item.item
+                          type ops_t =
+                            Item.ops_t = {
+                            sym_case :
+                              Symbol.sym ->
+                              [ `NT of Symbol.nt | `TM of Symbol.tm ];
+                            sym_of_tm : Symbol.tm -> Symbol.sym;
+                            mk_tm_coord : Symbol.tm * int -> tm_item;
+                            tm5 : tm_item -> Symbol.tm;
+                            mk_sym_coord : Symbol.sym * int * int -> sym_item;
+                            sym6 : sym_item -> Symbol.sym;
+                            nt2 : nt_item -> Symbol.sym;
+                            shift_a2_b2_c2 : nt_item -> nt_item;
+                            b2_nil : nt_item -> bool;
+                            a2 : nt_item -> sym_list;
+                            hd_b2 : nt_item -> Symbol.sym;
+                            mk_item :
+                              [ `NTITM of nt_item | `TMITM of tm_item ] ->
+                              item;
+                            dest_item :
+                              item ->
+                              [ `NTITM of nt_item | `TMITM of tm_item ];
+                            tm_dot_i9 : tm_item -> int;
+                            sym_dot_i9 : sym_item -> int;
+                            sym_dot_j9 : sym_item -> int;
+                            nt_dot_i9 : nt_item -> int;
+                            nt_dot_j9 : nt_item -> int;
+                            with_j9 : nt_item -> int -> nt_item;
+                          }
+                          val ops : ops_t
+                        end
+                      module Sets :
+                        sig
+                          module Item :
+                            sig
+                              module Symbol :
+                                sig
+                                  type nt = Symbol.nt
+                                  type tm = Symbol.tm
+                                  type sym = Symbol.sym
+                                end
+                              type tm_item = Item.tm_item
+                              type nt_item = Item.nt_item
+                              type sym_item = Item.sym_item
+                              type sym_list = Item.sym_list
+                              type item = Item.item
+                              type ops_t =
+                                Item.ops_t = {
+                                sym_case :
+                                  Symbol.sym ->
+                                  [ `NT of Symbol.nt | `TM of Symbol.tm ];
+                                sym_of_tm : Symbol.tm -> Symbol.sym;
+                                mk_tm_coord : Symbol.tm * int -> tm_item;
+                                tm5 : tm_item -> Symbol.tm;
+                                mk_sym_coord :
+                                  Symbol.sym * int * int -> sym_item;
+                                sym6 : sym_item -> Symbol.sym;
+                                nt2 : nt_item -> Symbol.sym;
+                                shift_a2_b2_c2 : nt_item -> nt_item;
+                                b2_nil : nt_item -> bool;
+                                a2 : nt_item -> sym_list;
+                                hd_b2 : nt_item -> Symbol.sym;
+                                mk_item :
+                                  [ `NTITM of nt_item | `TMITM of tm_item ] ->
+                                  item;
+                                dest_item :
+                                  item ->
+                                  [ `NTITM of nt_item | `TMITM of tm_item ];
+                                tm_dot_i9 : tm_item -> int;
+                                sym_dot_i9 : sym_item -> int;
+                                sym_dot_j9 : sym_item -> int;
+                                nt_dot_i9 : nt_item -> int;
+                                nt_dot_j9 : nt_item -> int;
+                                with_j9 : nt_item -> int -> nt_item;
+                              }
+                              val ops : ops_t
+                            end
+                          module Set_todo_done :
+                            sig
+                              type t = Sets_maps.Sets.Set_todo_done.t
+                              val std_empty : unit -> t
+                              val std_add : Item.item -> t -> t
+                              val std_mem : Item.item -> t -> bool
+                            end
+                        end
+                      module Maps :
+                        sig
+                          module Symbol :
+                            sig
+                              type nt = Symbol.nt
+                              type tm = Symbol.tm
+                              type sym = Symbol.sym
+                            end
+                          module Item :
+                            sig
+                              module Symbol :
+                                sig
+                                  type nt = Symbol.nt
+                                  type tm = Symbol.tm
+                                  type sym = Symbol.sym
+                                end
+                              type tm_item = Item.tm_item
+                              type nt_item = Item.nt_item
+                              type sym_item = Item.sym_item
+                              type sym_list = Item.sym_list
+                              type item = Item.item
+                              type ops_t =
+                                Item.ops_t = {
+                                sym_case :
+                                  Symbol.sym ->
+                                  [ `NT of Symbol.nt | `TM of Symbol.tm ];
+                                sym_of_tm : Symbol.tm -> Symbol.sym;
+                                mk_tm_coord : Symbol.tm * int -> tm_item;
+                                tm5 : tm_item -> Symbol.tm;
+                                mk_sym_coord :
+                                  Symbol.sym * int * int -> sym_item;
+                                sym6 : sym_item -> Symbol.sym;
+                                nt2 : nt_item -> Symbol.sym;
+                                shift_a2_b2_c2 : nt_item -> nt_item;
+                                b2_nil : nt_item -> bool;
+                                a2 : nt_item -> sym_list;
+                                hd_b2 : nt_item -> Symbol.sym;
+                                mk_item :
+                                  [ `NTITM of nt_item | `TMITM of tm_item ] ->
+                                  item;
+                                dest_item :
+                                  item ->
+                                  [ `NTITM of nt_item | `TMITM of tm_item ];
+                                tm_dot_i9 : tm_item -> int;
+                                sym_dot_i9 : sym_item -> int;
+                                sym_dot_j9 : sym_item -> int;
+                                nt_dot_i9 : nt_item -> int;
+                                nt_dot_j9 : nt_item -> int;
+                                with_j9 : nt_item -> int -> nt_item;
+                              }
+                              val ops : ops_t
+                            end
+                          type mbk_key = int * Symbol.sym
+                          type mbk_value = Item.nt_item
+                          module Map_blocked_key :
+                            sig
+                              type t = Sets_maps.Maps.Map_blocked_key.t
+                              val map_fold_cod :
+                                mbk_key ->
+                                (mbk_value -> 'b -> 'b) -> t -> 'b -> 'b
+                              val map_empty : unit -> t
+                              val map_add_cod :
+                                mbk_key -> mbk_value -> t -> t
+                              val map_cod_empty : mbk_key -> t -> bool
+                            end
+                          type mck_key = int * Symbol.sym
+                          type mck_value = Item.sym_item
+                          module Map_complete_key :
+                            sig
+                              type t = Sets_maps.Maps.Map_complete_key.t
+                              val map_empty : unit -> t
+                              val map_add_cod :
+                                mck_key -> mck_value -> t -> t
+                              val map_fold_cod :
+                                mck_key ->
+                                (mck_value -> 'b -> 'b) -> t -> 'b -> 'b
+                            end
+                          type mti_key = Symbol.tm * int
+                          type mti_value = int
+                          module Map_tm_int :
+                            sig
+                              type t = Sets_maps.Maps.Map_tm_int.t
+                              val map_empty : unit -> t
+                              val map_add_cod :
+                                mti_key -> mti_value -> t -> t
+                              val map_find_cod :
+                                mti_key -> mti_value -> t -> bool
+                            end
+                          type mssii_key =
+                              Item.sym_list * Symbol.sym * int * int
+                          type mssii_value = int
+                          module Map_sym_sym_int_int :
+                            sig
+
+XXX (arg sig to E3; type t should be abstract? but this is most specific type we can give and should match the impl)
+                              type t = Sets_maps.Maps.Map_sym_sym_int_int.t
+                              val map_empty : unit -> t
+                              val map_add_cod :
+                                mssii_key -> mssii_value -> t -> t
+                              val mssii_elts_cod :
+                                mssii_key -> t -> mssii_value list
+                            end
+                        end
+                      type ty_loop2 = {
+                        todo_done5 : Sets.Set_todo_done.t;
+                        todo5 : Item.item list;
+                        oracle5 : Maps.Map_sym_sym_int_int.t;
+                        tmoracle5 : Maps.Map_tm_int.t;
+                        blocked5 : Maps.Map_blocked_key.t;
+                        complete5 : Maps.Map_complete_key.t;
+                      }
+                    end) ->
+    sig
+      module Symbol :
+        sig type nt = Symbol.nt type tm = Symbol.tm type sym = Symbol.sym end
+      module Item :
+        sig
+          module Symbol :
+            sig
+              type nt = Symbol.nt
+              type tm = Symbol.tm
+              type sym = Symbol.sym
+            end
+          type tm_item = Item.tm_item
+          type nt_item = Item.nt_item
+          type sym_item = Item.sym_item
+          type sym_list = Item.sym_list
+          type item = Item.item
+          type ops_t =
+            Item.ops_t = {
+            sym_case : Symbol.sym -> [ `NT of Symbol.nt | `TM of Symbol.tm ];
+            sym_of_tm : Symbol.tm -> Symbol.sym;
+            mk_tm_coord : Symbol.tm * int -> tm_item;
+            tm5 : tm_item -> Symbol.tm;
+            mk_sym_coord : Symbol.sym * int * int -> sym_item;
+            sym6 : sym_item -> Symbol.sym;
+            nt2 : nt_item -> Symbol.sym;
+            shift_a2_b2_c2 : nt_item -> nt_item;
+            b2_nil : nt_item -> bool;
+            a2 : nt_item -> sym_list;
+            hd_b2 : nt_item -> Symbol.sym;
+            mk_item : [ `NTITM of nt_item | `TMITM of tm_item ] -> item;
+            dest_item : item -> [ `NTITM of nt_item | `TMITM of tm_item ];
+            tm_dot_i9 : tm_item -> int;
+            sym_dot_i9 : sym_item -> int;
+            sym_dot_j9 : sym_item -> int;
+            nt_dot_i9 : nt_item -> int;
+            nt_dot_j9 : nt_item -> int;
+            with_j9 : nt_item -> int -> nt_item;
+          }
+          val ops : ops_t
+        end
+      module Sets :
+        sig
+          module Item :
+            sig
+              module Symbol :
+                sig
+                  type nt = Symbol.nt
+                  type tm = Symbol.tm
+                  type sym = Symbol.sym
+                end
+              type tm_item = Item.tm_item
+              type nt_item = Item.nt_item
+              type sym_item = Item.sym_item
+              type sym_list = Item.sym_list
+              type item = Item.item
+              type ops_t =
+                Item.ops_t = {
+                sym_case :
+                  Symbol.sym -> [ `NT of Symbol.nt | `TM of Symbol.tm ];
+                sym_of_tm : Symbol.tm -> Symbol.sym;
+                mk_tm_coord : Symbol.tm * int -> tm_item;
+                tm5 : tm_item -> Symbol.tm;
+                mk_sym_coord : Symbol.sym * int * int -> sym_item;
+                sym6 : sym_item -> Symbol.sym;
+                nt2 : nt_item -> Symbol.sym;
+                shift_a2_b2_c2 : nt_item -> nt_item;
+                b2_nil : nt_item -> bool;
+                a2 : nt_item -> sym_list;
+                hd_b2 : nt_item -> Symbol.sym;
+                mk_item : [ `NTITM of nt_item | `TMITM of tm_item ] -> item;
+                dest_item : item -> [ `NTITM of nt_item | `TMITM of tm_item ];
+                tm_dot_i9 : tm_item -> int;
+                sym_dot_i9 : sym_item -> int;
+                sym_dot_j9 : sym_item -> int;
+                nt_dot_i9 : nt_item -> int;
+                nt_dot_j9 : nt_item -> int;
+                with_j9 : nt_item -> int -> nt_item;
+              }
+              val ops : ops_t
+            end
+          module Set_todo_done :
+            sig
+              type t = Sets_maps.Sets.Set_todo_done.t
+              val std_empty : unit -> t
+              val std_add : Item.item -> t -> t
+              val std_mem : Item.item -> t -> bool
+            end
+        end
+      module Maps :
+        sig
+          module Symbol :
+            sig
+              type nt = Symbol.nt
+              type tm = Symbol.tm
+              type sym = Symbol.sym
+            end
+          module Item :
+            sig
+              module Symbol :
+                sig
+                  type nt = Symbol.nt
+                  type tm = Symbol.tm
+                  type sym = Symbol.sym
+                end
+              type tm_item = Item.tm_item
+              type nt_item = Item.nt_item
+              type sym_item = Item.sym_item
+              type sym_list = Item.sym_list
+              type item = Item.item
+              type ops_t =
+                Item.ops_t = {
+                sym_case :
+                  Symbol.sym -> [ `NT of Symbol.nt | `TM of Symbol.tm ];
+                sym_of_tm : Symbol.tm -> Symbol.sym;
+                mk_tm_coord : Symbol.tm * int -> tm_item;
+                tm5 : tm_item -> Symbol.tm;
+                mk_sym_coord : Symbol.sym * int * int -> sym_item;
+                sym6 : sym_item -> Symbol.sym;
+                nt2 : nt_item -> Symbol.sym;
+                shift_a2_b2_c2 : nt_item -> nt_item;
+                b2_nil : nt_item -> bool;
+                a2 : nt_item -> sym_list;
+                hd_b2 : nt_item -> Symbol.sym;
+                mk_item : [ `NTITM of nt_item | `TMITM of tm_item ] -> item;
+                dest_item : item -> [ `NTITM of nt_item | `TMITM of tm_item ];
+                tm_dot_i9 : tm_item -> int;
+                sym_dot_i9 : sym_item -> int;
+                sym_dot_j9 : sym_item -> int;
+                nt_dot_i9 : nt_item -> int;
+                nt_dot_j9 : nt_item -> int;
+                with_j9 : nt_item -> int -> nt_item;
+              }
+              val ops : ops_t
+            end
+          type mbk_key = int * Symbol.sym
+          type mbk_value = Item.nt_item
+          module Map_blocked_key :
+            sig
+              type t = Sets_maps.Maps.Map_blocked_key.t
+              val map_fold_cod :
+                mbk_key -> (mbk_value -> 'b -> 'b) -> t -> 'b -> 'b
+              val map_empty : unit -> t
+              val map_add_cod : mbk_key -> mbk_value -> t -> t
+              val map_cod_empty : mbk_key -> t -> bool
+            end
+          type mck_key = int * Symbol.sym
+          type mck_value = Item.sym_item
+          module Map_complete_key :
+            sig
+              type t = Sets_maps.Maps.Map_complete_key.t
+              val map_empty : unit -> t
+              val map_add_cod : mck_key -> mck_value -> t -> t
+              val map_fold_cod :
+                mck_key -> (mck_value -> 'b -> 'b) -> t -> 'b -> 'b
+            end
+          type mti_key = Symbol.tm * int
+          type mti_value = int
+          module Map_tm_int :
+            sig
+              type t = Sets_maps.Maps.Map_tm_int.t
+              val map_empty : unit -> t
+              val map_add_cod : mti_key -> mti_value -> t -> t
+              val map_find_cod : mti_key -> mti_value -> t -> bool
+            end
+          type mssii_key = Item.sym_list * Symbol.sym * int * int
+          type mssii_value = int
+          module Map_sym_sym_int_int :
+            sig
+              type t = Sets_maps.Maps.Map_sym_sym_int_int.t
+              val map_empty : unit -> t
+              val map_add_cod : mssii_key -> mssii_value -> t -> t
+              val mssii_elts_cod : mssii_key -> t -> mssii_value list
+            end
+        end
+      val update_oracle :
+        Maps.Map_sym_sym_int_int.t ->
+        Item.nt_item * int -> Maps.Map_sym_sym_int_int.t
+      val update_tmoracle :
+        Maps.Map_tm_int.t -> Symbol.tm * int * int -> Maps.Map_tm_int.t
+      val todo_is_empty : Earley_state.ty_loop2 -> bool
+      val add_todo :
+        Earley_state.ty_loop2 -> Sets.Item.item -> Earley_state.ty_loop2
+      val pop_todo :
+        Earley_state.ty_loop2 ->
+        Earley_state.ty_loop2 * Earley_state.Item.item
+      val cut :
+        Item.nt_item ->
+        Item.sym_item -> Earley_state.ty_loop2 -> Earley_state.ty_loop2
+      val step :
+        Ctxt.ctxt_t -> Earley_state.ty_loop2 -> Earley_state.ty_loop2
+      val earley :
+        Ctxt.ctxt_t -> Earley_state.ty_loop2 -> Earley_state.ty_loop2
+    end
+
+
+error msg:
+
+
+
+error
+
+-*- mode: compilation; default-directory: "/tmp/l/github/e3/src/" -*-
+Compilation started at Wed Dec 30 11:33:16
+
+make -k -C /tmp/l/github/e3/
+make: Entering directory `/mnt/sdb1/tom/github/e3'
+ocamlbuild -I src -cflag -w -cflag -8 core_types.cmo map_set_types.cmo core.cmo simple.cmo
+/home/tr61/.opam/4.02.3/bin/ocamldep.opt -modules src/simple.ml > src/simple.ml.depends
+/home/tr61/.opam/4.02.3/bin/ocamlc.opt -c -w -8 -annot -bin-annot -I src -o src/simple.cmo src/simple.ml
++ /home/tr61/.opam/4.02.3/bin/ocamlc.opt -c -w -8 -annot -bin-annot -I src -o src/simple.cmo src/simple.ml
+File "src/simple.ml", line 261, characters 83-95:
+Error: Signature mismatch:
+       ...
+       In module Maps.Map_sym_sym_int_int:
+       Type declarations do not match:
+         type t = Map_set_types.Default_map_impl(Key_ord)(Sets_maps.I1).t
+       is not included in
+         type t = Sets_maps.Maps.Map_sym_sym_int_int.t
+Command exited with code 2.
+make: *** [all] Error 10
+make: Leaving directory `/mnt/sdb1/tom/github/e3'
+
+Compilation exited abnormally with code 2 at Wed Dec 30 11:33:17

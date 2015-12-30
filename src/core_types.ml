@@ -173,9 +173,10 @@ end
 
 module type Earley_state_t = sig
 
-  module Item : Item_t
-  module Sets : Sets_t
-  module Maps : Maps_t
+  module Symbol : Symbol_t
+  module Item : Item_t with module Symbol=Symbol
+  module Sets : Sets_t with module Item=Item
+  module Maps : Maps_t with module Symbol=Symbol and module Item=Item
 
   open Item
   open Maps

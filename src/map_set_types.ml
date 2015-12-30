@@ -51,8 +51,18 @@ module type Mssii = sig
   val mssii_elts_cod: key -> t -> value list
 end
 
+(* result type of Default_map_impl *)
+module type Mall = sig
+  include Map_t
+  val map_fold_cod: key -> (value -> 'b -> 'b) -> t -> 'b -> 'b
+  val map_cod_empty: key -> t -> bool
+  val map_find_cod: key -> value -> t -> bool
+  val mssii_elts_cod: key -> t -> value list      
+end
+
+
 (*  FIXME probably have to restrict the type t in the following so that keys and valu types are explicit, and impl type is abstract *)
-module Default_map_impl(Key_ord: Map.OrderedType)(Value_ord:Map.OrderedType) = struct
+module Default_map_impl(Key_ord: Map.OrderedType)(Value_ord:Map.OrderedType) : Mall with type key = Key_ord.t and type value = Value_ord.t = struct
 
   type key = Key_ord.t
   type value = Value_ord.t

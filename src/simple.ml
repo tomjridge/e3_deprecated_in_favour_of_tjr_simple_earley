@@ -9,8 +9,8 @@ module Symbol = struct
   type sym = int
 
   let id = fun x -> x
-  let sym_case = (fun x -> if x mod 2 = 0 then `NT x else `TM x)
-  let sym_of_tm = id
+  let sym_case : sym -> [ `NT of nt | `TM of tm] = (fun x -> if x mod 2 = 0 then `NT x else `TM x)
+  let sym_of_tm : tm -> sym = id
   
 end
 
@@ -131,17 +131,17 @@ module Sets_maps = struct
   module type Maps_t = (Maps_t with module Symbol=S and module Item=I)
 
   (* orderings *)
-  module I1 : Map.OrderedType = struct
+  module I1 : Map.OrderedType with type t=int = struct
     type t = int
     let compare = compare_i
   end
 
-  module II : Map.OrderedType = struct
+  module II : Map.OrderedType with type t=int * int = struct
     type t = int * int
     let compare = compare_ii
   end
 
-  module III : Map.OrderedType = struct
+  module III : Map.OrderedType with type t=(int*int*int) = struct
     type t = int * int * int
     let compare = compare_iii
   end
@@ -157,7 +157,7 @@ module Sets_maps = struct
   end
   
   
-  module Sets : Sets_t = struct
+  module Sets : Sets_t with module Item=I = struct
     module Item = I
     module Set_todo_done: (Set_t with type elt:=item) =
       Default_set_impl(Item_ord) 
@@ -165,11 +165,13 @@ module Sets_maps = struct
 
 
   
-  module Maps : Maps_t = struct
+  module Maps : Maps_t with module Symbol=S and module Item=I = struct
 
     module Symbol = S
     module Item = I
-    
+    open Symbol
+    open Item
+
     type mbk_key = int * sym
     type mbk_value = nt_item    
     module Map_blocked_key = Default_map_impl(II)(Nt_item_ord)
@@ -191,8 +193,97 @@ module Sets_maps = struct
     module Map_sym_sym_int_int = Default_map_impl(Key_ord)(I1)
           
   end
-  
-  
+    
+end  (* Sets_maps *)
 
+module Sets = Sets_maps.Sets
+module Maps = Sets_maps.Maps
+
+
+module Substring = struct
+
+  type string_t
+  type substring = (string_t * int * int)
   
 end
+
+module Ctxt = struct
+
+  module Substring = Substring
+  module Symbol = Symbol
+  module Item = Item
+
+  open Substring
+  open Symbol
+  open Item
+
+  type input_t = {
+    string5: string_t;
+    length5: int;
+  } 
+
+  type grammar_t = {
+    (* the first int is the start of the nt_itm in whose rhs this nt
+       occurs; the second int is the index from which we are trying to
+       parse an nt *)
+    nt_items_for_nt: (nt -> (string_t*int*int) -> nt_item list);
+    (* the second int is typically the length of the input *)
+    p_of_tm: (tm -> (string_t*int*int) -> int list) 
+  }
+
+  type ctxt_t = {
+    g0:grammar_t;
+    i0:input_t
+  }
+  
+end
+
+
+module Earley_state = struct
+
+  module Symbol = Symbol
+  module Item = Item
+  module Sets = Sets
+  module Maps = Maps
+
+  open Item
+  open Maps
+  open Sets
+
+  type ty_loop2 = {
+    todo_done5: Set_todo_done.t;
+    todo5: item list;
+    oracle5: Map_sym_sym_int_int.t;
+    tmoracle5: Map_tm_int.t;
+    blocked5: Map_blocked_key.t;
+    complete5: Map_complete_key.t;
+  }
+
+end
+
+
+module E3 = Core.E3(Symbol)(Item)(Sets)(Maps)(Substring)(Ctxt)(Earley_state)
+
+
+let earley : Ctxt.ctxt_t -> Earley_state.ty_loop2 -> Earley_state.ty_loop2 = E3.earley
+
+(* FIXME we really want to hide the types such as ctxt_t, so the user
+   doesn't have to see any details of this module *)
+let run_earley : Ctxt.ctxt_t -> Symbol.nt -> Earley_state.ty_loop2 = (
+  fun c0 nt0 ->
+    let open Symbol in
+    let open Item in
+    let open Earley_state in
+    let item0 = `NTITM(nt0,[],[nt0],0,0) |> Item.ops.mk_item in
+    let s0 : Earley_state.ty_loop2 = {
+      todo_done5=Sets.Set_todo_done.std_empty();
+      todo5=[item0];
+      oracle5=Maps.Map_sym_sym_int_int.map_empty();
+      tmoracle5=Maps.Map_tm_int.map_empty();
+      blocked5=Maps.Map_blocked_key.map_empty();
+      complete5=Maps.Map_complete_key.map_empty();
+    }
+    in
+    earley c0 s0
+)
+

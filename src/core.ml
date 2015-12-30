@@ -12,9 +12,14 @@ module
     (Maps: Maps_t with module Symbol=Symbol and module Item=Item)
     (Substring: Substring_t) 
     (Ctxt: Ctxt_t with module Substring=Substring and module Symbol=Symbol and module Item=Item)
-    (Earley_state: Earley_state_t with module Item=Item and module Sets=Sets and module Maps=Maps)
+    (Earley_state: Earley_state_t with module Symbol=Symbol and module Item=Item and module Sets=Sets and module Maps=Maps)
 
 = struct
+
+  module Symbol=Symbol
+  module Item=Item
+  module Sets=Sets
+  module Maps=Maps
 
   open Symbol
   open Item
