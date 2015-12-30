@@ -87,14 +87,6 @@ module Default_map_impl(Key_ord: Map.OrderedType)(Value_ord:Map.OrderedType) : M
    
 end
 
-module Tmp_ko : Map.OrderedType = struct
-  type t = int
-  let compare = (Pervasives.compare:int -> int -> int)
-end
-
-module X: Mssii = Default_map_impl(Tmp_ko)(Tmp_ko)
-
-
 module Default_set_impl(Elt_ord: Set.OrderedType) = struct
 
   module S = Set.Make(Elt_ord)

@@ -3,7 +3,7 @@ SHELL:=bash
 OB:=ocamlbuild -I src -cflag -w -cflag -8
 
 all:
-	$(OB) core_types.cmo map_set_types.cmo core.cmo simple.cmo
+	$(OB) core_types.cmo map_set_types.cmo core.cmo simple.cmo test.cmo test.native
 
 cmi:
 	$(OB) symbol.cmi substring.cmi
@@ -17,8 +17,10 @@ install: all
 	ocamlfind install e3 META _build/src/*.cmi  _build/src/e3.cma _build/src/e3.cmxa _build/src/e3.a
 
 test: all
-	./_build/src/e3_examples.native
-	./_build/src/e3_test.native
+	./test.native
+
+doc:
+	$(OB) e3.docdir/index.html
 
 clean:
 	$(OB) -clean

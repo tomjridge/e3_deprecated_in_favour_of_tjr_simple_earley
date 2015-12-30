@@ -158,8 +158,8 @@ module Sets_maps = struct
   
   
   module Sets : Sets_t with module Item=I = struct
-    module Item = I
-    module Set_todo_done: (Set_t with type elt:=item) =
+    module Item = I      
+    module Set_todo_done: (Set_t with type elt=item) =
       Default_set_impl(Item_ord) 
   end
 
@@ -264,12 +264,25 @@ end
 
 module E3 = Core.E3(Symbol)(Item)(Sets)(Maps)(Substring)(Ctxt)(Earley_state)
 
-
 let earley : Ctxt.ctxt_t -> Earley_state.ty_loop2 -> Earley_state.ty_loop2 = E3.earley
+
+(* export for use *)
+                                                                               
+include Symbol
+type nt_item = Item.nt_item
+
+type 'a params = {
+  nt_items_for_nt: nt -> ('a*int*int) -> nt_item list;
+  p_of_tm: tm -> ('a*int*int) -> int list }
+
+type oracle_t = (sym list * sym) -> (int * int) -> int list
+
+(** Parsing also returns information about which extents correspond to terminals. *)
+type tm_oracle_t = tm -> (int * int) -> bool
 
 (* FIXME we really want to hide the types such as ctxt_t, so the user
    doesn't have to see any details of this module *)
-let run_earley : Ctxt.ctxt_t -> Symbol.nt -> Earley_state.ty_loop2 = (
+let run_earley' : Ctxt.ctxt_t -> Symbol.nt -> Earley_state.ty_loop2 = (
   fun c0 nt0 ->
     let open Symbol in
     let open Item in
@@ -287,3 +300,34 @@ let run_earley : Ctxt.ctxt_t -> Symbol.nt -> Earley_state.ty_loop2 = (
     earley c0 s0
 )
 
+
+let run_earley: 'a params -> nt -> 'a -> int -> (oracle_t * tm_oracle_t) = (
+  fun p0 nt0 s0 i0 -> (
+      let open Substring in
+      let open Ctxt in
+      let open Earley_state in
+      let alpha_to_string_t (x:'a) = ((Obj.magic x):Substring.string_t) in
+      let string_t_to_alpha (x:string_t) = ((Obj.magic x):'a) in
+      let c0 = {
+        g0={
+          nt_items_for_nt=(fun nt (s,i,j) -> p0.nt_items_for_nt nt (s|>string_t_to_alpha,i,j));
+          p_of_tm=(fun tm (s,i,j) -> (
+                p0.p_of_tm tm (s|>string_t_to_alpha,i,j)
+              ));
+        };
+        i0={
+          string5=(s0|>alpha_to_string_t);
+          length5=i0;
+        };
+      }
+      in
+      let s1 : Earley_state.ty_loop2 = run_earley' c0 nt0 in
+      let oracle = (fun (syms1,sym2) -> fun (i,j) -> 
+          Maps.Map_sym_sym_int_int.mssii_elts_cod (syms1,sym2,i,j) s1.oracle5)
+      in
+      let tm_oracle = (fun tm -> fun (i,j) ->
+          Maps.Map_tm_int.map_find_cod (tm,i) j s1.tmoracle5)
+      in
+      (oracle,tm_oracle)
+    )
+)

@@ -1,3 +1,6 @@
+(** Signatures for modules used as input to Earley core code. *)
+
+
 (* the code in e3_core is parametric, but the explosion of type
    variables makes it slightly uncomfortable to work with; the types
    here are the parametric types, and these are fixed in e3_core using
@@ -87,22 +90,22 @@ module type Maps_t = sig
   type mbk_key = int * sym
   type mbk_value = nt_item
   module Map_blocked_key :
-    (Mbk with type key:=mbk_key and type value:=mbk_value)
+    (Mbk with type key=mbk_key and type value=mbk_value)
 
   type mck_key = int * sym
   type mck_value = sym_item
   module Map_complete_key :
-    (Mck with type key:=mck_key and type value:=mck_value)
+    (Mck with type key=mck_key and type value=mck_value)
 
   type mti_key = tm * int
   type mti_value = int
   module Map_tm_int :
-    (Mti with type key:=mti_key and type value:=mti_value)
+    (Mti with type key=mti_key and type value=mti_value)
   
   type mssii_key = sym_list * sym * int * int
   type mssii_value = int
   module Map_sym_sym_int_int :
-    (Mssii with type key:=mssii_key and type value:=mssii_value)
+    (Mssii with type key=mssii_key and type value=mssii_value)
 
 end
 
@@ -114,7 +117,7 @@ module type Sets_t = sig
   open Map_set_types
 
   module Set_todo_done :
-    (Set_t with type elt:=Item.item)
+    (Set_t with type elt=Item.item)
 
 end
 
