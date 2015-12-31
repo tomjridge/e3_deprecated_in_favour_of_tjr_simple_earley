@@ -4,13 +4,13 @@ open Core_types
 
 module Symbol = struct
 
-  type nt = int (* assumed even *)
-  type tm = int (* odd *)
-  type sym = int
+  type nt = int 
+  type tm = int 
+  type sym = [ `NT of nt | `TM of tm ]
 
-  let id = fun x -> x
-  let sym_case : sym -> [ `NT of nt | `TM of tm] = (fun x -> if x mod 2 = 0 then `NT x else `TM x)
-  let sym_of_tm : tm -> sym = id
+  let sym_case : sym -> [ `NT of nt | `TM of tm] = fun x -> x
+
+  let sym_of_tm : tm -> sym = fun x -> `TM x
   
 end
 
@@ -54,13 +54,13 @@ module Item = struct
   let ops = (
     let id = fun x -> x in
     {
-      sym_case       =(fun x -> if x mod 2 = 0 then `NT x else `TM x);
-      sym_of_tm      =id;
+      sym_case       =sym_case;
+      sym_of_tm      =sym_of_tm;
       mk_tm_coord    =id;
       tm5            =(fun (tm,i) -> tm);
       mk_sym_coord   =id;
       sym6           =(fun (sym,i,j) -> sym);
-      nt2            =(fun (nt,_,_,_,_) -> nt);
+      nt2            =(fun (nt,_,_,_,_) -> `NT nt);
       shift_a2_b2_c2 =(fun (nt,_as,b::bs,i,j) -> (nt,b::_as,bs,i,j));
       (*    a2_length_1    =(fun (nt,_as,_,_,_) -> match _as with [x] -> true | _ -> false); *)
       b2_nil         =(fun (nt,_,bs,_,_) -> match bs with [] -> true | _ -> false);
@@ -80,6 +80,8 @@ module Item = struct
 end
 
 
+module Compare = struct
+  
   let compare_i x1 y1 = (x1 - y1)
   
   let compare_ii (x1,x2) (y1,y2) = (
@@ -102,7 +104,7 @@ end
         let x=x3 - y3 in
         if x<>0 then x else
           x4 - y4)
-  
+
   let compare_nt_item (nt,_as,bs,i,j) (nt',_as',bs',i',j') = (
     let x = compare_iii (nt,i,j) (nt',i',j') in
     if x<>0 then x else
@@ -115,10 +117,13 @@ end
     | (`TMITM x, `TMITM y) -> (compare_ii x y)
     | (`NTITM x, `NTITM y) -> (compare_nt_item x y))
 
+end
+  
 
 module Sets_maps = struct
 
   open Map_set_types
+  open Compare
       
   module S = Symbol
   module I = Item
@@ -131,6 +136,9 @@ module Sets_maps = struct
   module type Maps_t = (Maps_t with module Symbol=S and module Item=I)
 
   (* orderings *)
+
+
+(*  
   module I1 : Map.OrderedType with type t=int = struct
     type t = int
     let compare = compare_i
@@ -146,6 +154,14 @@ module Sets_maps = struct
     let compare = compare_iii
   end
 
+  module Sym_ord : Set.OrderedType with type t=sym = struct
+    type t = sym
+    let compare : t -> t -> int = Pervasives.compare
+  end
+*)
+
+
+  
   module Nt_item_ord : Set.OrderedType with type t=nt_item = struct
     type t = nt_item
     let compare : t -> t -> int = compare_nt_item
@@ -174,15 +190,38 @@ module Sets_maps = struct
 
     type mbk_key = int * sym
     type mbk_value = nt_item    
-    module Map_blocked_key = Default_map_impl(II)(Nt_item_ord)
+    module Map_blocked_key = Default_map_impl
+        (struct
+          type t = mbk_key
+          let compare: t -> t -> int = Pervasives.compare
+        end)
+        (Nt_item_ord)
 
     type mck_key = int * sym
     type mck_value = sym_item
-    module Map_complete_key = Default_map_impl(II)(III)
+    module Map_complete_key = Default_map_impl
+        (struct
+          type t = mck_key
+          let compare: t -> t -> int = Pervasives.compare
+        end)
+        (struct
+          type t = mck_value
+          let compare: t -> t -> int = Pervasives.compare
+        end)
+
 
     type mti_key = tm * int
     type mti_value = int
-    module Map_tm_int = Default_map_impl(II)(I1)
+    module Map_tm_int = Default_map_impl
+        (struct
+          type t = mti_key
+          let compare: t -> t -> int = Pervasives.compare
+        end)
+        (struct
+          type t = mti_value
+          let compare: t -> t -> int = Pervasives.compare
+        end)
+        
 
     type mssii_key = sym_list * sym * int * int
     type mssii_value = int
@@ -190,7 +229,14 @@ module Sets_maps = struct
       type t = mssii_key
       let compare : t -> t -> int = Pervasives.compare
     end
-    module Map_sym_sym_int_int = Default_map_impl(Key_ord)(I1)
+    module Map_sym_sym_int_int = Default_map_impl
+        (Key_ord)
+        (struct
+          type t = mssii_value
+          let compare: t -> t -> int = Pervasives.compare
+        end)
+        
+        
           
   end
     
@@ -287,7 +333,7 @@ let run_earley' : Ctxt.ctxt_t -> Symbol.nt -> Earley_state.ty_loop2 = (
     let open Symbol in
     let open Item in
     let open Earley_state in
-    let item0 = `NTITM(nt0,[],[nt0],0,0) |> Item.ops.mk_item in
+    let item0 = `NTITM(nt0,[],[`NT nt0],0,0) |> Item.ops.mk_item in
     let s0 : Earley_state.ty_loop2 = {
       todo_done5=Sets.Set_todo_done.std_empty();
       todo5=[item0];

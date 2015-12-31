@@ -79,18 +79,18 @@ order of fixing things:
                                                     
                                                     
 #+BEGIN_SRC                                                    
-                                                    
-  +-----------string-------------+                  
-  v            v                 v                  
- grammar      substring        input(string,length) 
-                                                    
-                                                    
-                                                    
-    symbol                                          
-     v                                              
-    item                                            
-     v                                              
-    sets,maps                                       
+                               
+              string-------+-----+
+               v           |     v
+              substring    |   input(string,length)
+                           |   
+                           |
+                           |
+    symbol                 |
+     v                     |
+    item-------------------+
+     v                     v
+    sets,maps            grammar
                                                     
 
 #+END_SRC                                                    
@@ -558,3 +558,25 @@ make: *** [all] Error 10
 make: Leaving directory `/mnt/sdb1/tom/github/e3'
 
 Compilation exited abnormally with code 2 at Wed Dec 30 11:33:17
+
+* 2015-12-30 order of fixing
+
+  - we should provide a simple implementation of symbols, using a
+    datatype (not just ints)
+    - for p4 etc we also need to allow the user to define symbols and
+      nt_item type, but we don't want the user to have to provide
+      implementations of sets and map types; so somehow the user
+      should provide the necessary info to allow construction of the
+      set/map impls
+    - p4 currently does this using gensym to tag symbols, lists of
+      symbols, and items
+  - the nt_items_for_nt could be altered to provide a list of symbols
+    rather than nt_item; this would allow to hide the nt_item type,
+    but this may not be what is wanted (eg p4 client needs to maintain
+    an explicit nt_item type)
+  - we should provide (ocaml std map, hashtable, array)
+    implementations which the user can choose; we probably need
+    orderings on symbols, and items (nt_item, sym_item, item)
+  - need a default symbol impl; a default item impl (given symbol);
+    and several sets/maps impls (given symbol, item, and some
+    additional ordering/enumeration info)

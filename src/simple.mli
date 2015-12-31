@@ -18,7 +18,7 @@ type nt = int
 type tm = int
 
 (** Symbols are either nts or tms *)
-type sym = int
+type sym = [ `NT of nt | `TM of tm ]
 
 (** An item, a tuple representing an Earley item of the form E -> alpha.beta,i,j *)
 type nt_item = nt * sym list * sym list * int * int
