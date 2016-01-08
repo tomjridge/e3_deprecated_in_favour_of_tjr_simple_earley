@@ -44,6 +44,10 @@ end
 
 module Sets_maps = struct
 
+  module Set_impl = Set_map_types.Bintree_set_impl
+  module Map_impl = Set_map_types.Bintree_map_impl
+                     
+  
   open Set_map_types
   open Compare
       
@@ -98,7 +102,8 @@ module Sets_maps = struct
   module Sets : Sets_t with module Item=I = struct
     module Item = I      
     module Set_todo_done: (Set_t with type elt=item) =
-      Default_set_impl(Item_ord) 
+      (* Hashed_sets_and_maps.Basic_set_impl(Item_ord)  *)
+      Set_impl(Item_ord)
   end
 
 
@@ -112,7 +117,7 @@ module Sets_maps = struct
 
     type mbk_key = int * sym
     type mbk_value = nt_item    
-    module Map_blocked_key = Default_map_impl
+    module Map_blocked_key = Map_impl
         (struct
           type t = mbk_key
           let compare: t -> t -> int = Pervasives.compare
@@ -121,7 +126,7 @@ module Sets_maps = struct
 
     type mck_key = int * sym
     type mck_value = sym_item
-    module Map_complete_key = Default_map_impl
+    module Map_complete_key = Map_impl
         (struct
           type t = mck_key
           let compare: t -> t -> int = Pervasives.compare
@@ -134,7 +139,7 @@ module Sets_maps = struct
 
     type mti_key = tm * int
     type mti_value = int
-    module Map_tm_int = Default_map_impl
+    module Map_tm_int = Map_impl
         (struct
           type t = mti_key
           let compare: t -> t -> int = Pervasives.compare
@@ -151,7 +156,7 @@ module Sets_maps = struct
       type t = mssii_key
       let compare : t -> t -> int = Pervasives.compare
     end
-    module Map_sym_sym_int_int = Default_map_impl
+    module Map_sym_sym_int_int = Map_impl
         (Key_ord)
         (struct
           type t = mssii_value

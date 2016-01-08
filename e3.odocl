@@ -1,5 +1,7 @@
-Map_set_types
+Hashed_sets_and_maps
+Set_map_types
 Core_types
 Core
-Simple
-Test
+Common_impl
+Hashtbl_impl
+Simple_impl

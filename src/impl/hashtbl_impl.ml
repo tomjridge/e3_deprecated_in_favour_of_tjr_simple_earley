@@ -1,4 +1,4 @@
-(** Implementation based on hashtables.
+(*
 
     We want to remain parametric in symbols and items, but implement
     sets and maps using hashtables. This assumes that we have some way
@@ -59,13 +59,13 @@ module
   module Sets: Sets_t = struct
     module Item = Item
 
-    module Hashed_type = struct
+    module Iso_type = struct
       type t = Item.item
-      type t_hashed = Hashkey.hashed_item_t
-      let hash : t -> t_hashed = Hashkey.hash_item
+      type t_iso = Hashkey.hashed_item_t
+      let iso : t -> t_iso = Hashkey.hash_item
     end
 
-    module Set_todo_done = Default_hashset_impl(Hashed_type)        
+    module Set_todo_done = Basic_hashset_impl(Iso_type)        
   end
 
 
@@ -77,51 +77,51 @@ module
     open Item
 
 
-    module Hashed_int_sym = struct 
+    module Iso_int_sym = struct 
       type t = int * sym
-      type t_hashed = (int * Hashkey.hashed_sym_t)
-      let hash : t -> t_hashed = fun (x,y) -> (x,Hashkey.hash_sym y)
+      type t_iso = (int * Hashkey.hashed_sym_t)
+      let iso : t -> t_iso = fun (x,y) -> (x,Hashkey.hash_sym y)
     end
     
-    module Hashed_nt_item = struct
+    module Iso_nt_item = struct
       type t = nt_item
-      type t_hashed = Hashkey.hashed_nt_item_t
-      let hash : t -> t_hashed = Hashkey.hash_nt_item
+      type t_iso = Hashkey.hashed_nt_item_t
+      let iso : t -> t_iso = Hashkey.hash_nt_item
     end
 
-    module Hashed_sym_item = struct
+    module Iso_sym_item = struct
       type t = sym_item
-      type t_hashed = Hashkey.hashed_sym_item_t
-      let hash : t -> t_hashed = Hashkey.hash_sym_item
+      type t_iso = Hashkey.hashed_sym_item_t
+      let iso : t -> t_iso = Hashkey.hash_sym_item
     end
 
-    module Hashed_int = struct
+    module Iso_int = struct
       type t = int
-      type t_hashed = t
-      let hash : t -> t_hashed = fun x -> x
+      type t_iso = t
+      let iso : t -> t_iso = fun x -> x
     end
 
-    module Hashed_tm_int = struct 
+    module Iso_tm_int = struct 
       type t = tm * int
-      type t_hashed = (Hashkey.hashed_tm_t * int)
-      let hash : t -> t_hashed = fun (x,y) -> (Hashkey.hash_tm x,y)
+      type t_iso = (Hashkey.hashed_tm_t * int)
+      let iso : t -> t_iso = fun (x,y) -> (Hashkey.hash_tm x,y)
     end
 
 
-    module Hashed_ssii = struct
+    module Iso_ssii = struct
       type t = sym_list * sym * int * int
-      type t_hashed = (Hashkey.hashed_sym_list_t * Hashkey.hashed_sym_t * int * int)
-      let hash : t -> t_hashed = fun (x,y,z,w) -> Hashkey.(hash_sym_list x,hash_sym y,z,w)
+      type t_iso = (Hashkey.hashed_sym_list_t * Hashkey.hashed_sym_t * int * int)
+      let iso : t -> t_iso = fun (x,y,z,w) -> Hashkey.(hash_sym_list x,hash_sym y,z,w)
     end
     
     
-    module Map_blocked_key = Default_hashmap_impl(Hashed_int_sym)(Hashed_nt_item)
+    module Map_blocked_key = Default_hashmap_impl(Iso_int_sym)(Iso_nt_item)
 
-    module Map_complete_key = Default_hashmap_impl(Hashed_int_sym)(Hashed_sym_item)
+    module Map_complete_key = Default_hashmap_impl(Iso_int_sym)(Iso_sym_item)
 
-    module Map_tm_int = Default_hashmap_impl(Hashed_tm_int)(Hashed_int)
+    module Map_tm_int = Default_hashmap_impl(Iso_tm_int)(Iso_int)
 
-    module Map_sym_sym_int_int = Default_hashmap_impl(Hashed_ssii)(Hashed_int)
+    module Map_sym_sym_int_int = Default_hashmap_impl(Iso_ssii)(Iso_int)
     
   end
   

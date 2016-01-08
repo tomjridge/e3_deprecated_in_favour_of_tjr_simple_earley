@@ -1,8 +1,20 @@
 SHELL:=bash
 
-OB:=ocamlbuild -Is src,src/core,src/impl,src/sets_maps,src/test -cflag -w -cflag -8
+default: all
 
-all:
+-include local.mk
+
+$(SRC_LINKED): 
+	-rm -rf $@
+	mkdir $@
+	cd $@ && find ../src -type f -exec ln -s \{\} . \;
+	ln -s ../.tr61/interactive.ml $@
+
+
+# OB_IS:=-Is src,src/core,src/impl,src/sets_maps,src/test
+OB:=ocamlbuild -I $(SRC_LINKED) -cflag -w -cflag -8
+
+all: $(SRC_LINKED)
 	$(OB) core_types.cmo core.cmo simple_impl.cmo hashtbl_impl.cmo test.native examples.native
 	$(OB) e3.cma e3.cmxa
 
@@ -24,6 +36,8 @@ doc:
 
 clean:
 	$(OB) -clean
+	rm -rf $(SRC_LINKED)
+
+FORCE:
 
 
--include local.mk

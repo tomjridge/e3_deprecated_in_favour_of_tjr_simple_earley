@@ -1,4 +1,4 @@
-(** Earley code *)
+(** Earley core code. *)
 
 open Core_types
 

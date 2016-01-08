@@ -1,9 +1,6 @@
-src_ln: FORCE
-	-rm -rf src_ln
-	mkdir src_ln
-	cd src_ln && find ../src -type f -exec ln -s \{\} . \;
+SRC_LINKED:=src.linked
 
-MLS:=$(filter-out test.ml interactive.ml, $(shell cd src_ln && ocamlfind ocamldep -sort *.ml))
+MLS:=$(filter-out test.ml interactive.ml, $(shell cd $(SRC_LINKED) && ocamlfind ocamldep -sort *.ml))
 
 mods_for_lib:
 	echo $(MLS) | .tr61/mods_for_lib.scala

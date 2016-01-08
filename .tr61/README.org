@@ -1,22 +1,6 @@
 
-  - functorization
-    - introduced functors to e3_simple.ml, code compiles to e3_simple.ml[i]
-    - now need to introduce similar changes to e3_array, after first introducing a .mli file for e3_array
-
-Sample timings with functors (but no heap resize):
-
-tr61@pc1177:/tmp/l/github/super/e3/build$ ./e3_examples.native 
-Start example 833 ......stop in 0.297599 seconds
-Start example u5o ......stop in 2.549507 seconds
-Start example 86f ......stop in 0.271831 seconds
-Start example 17y ......stop in 2.456628 seconds
-
-Some timings with poly (but no heap resize):
-
-Start example 833 ......stop in 0.300432 seconds
-Start example u5o ......stop in 2.609769 seconds
-Start example 86f ......stop in 0.285397 seconds
-Start example 17y ......stop in 2.538197 seconds
+  - need to try an array impl (although previous testing indicated
+    this performed as hashtables)
 
 
 * 2015-12-25 
@@ -581,5 +565,11 @@ Compilation exited abnormally with code 2 at Wed Dec 30 11:33:17
     and several sets/maps impls (given symbol, item, and some
     additional ordering/enumeration info)
 * 2016-01-08 factorizing out the impl of sets and maps from simpl and hashtbl
+* 2016-01-08 timings on pc1177
 
 
+tr61@pc1177:/tmp/l/github/e3$ ./examples.native 
+Start example 833 ......stop in 0.790363 seconds
+Start example u5o ......stop in 6.772121 seconds
+Start example 86f ......stop in 0.296937 seconds
+Start example 17y ......stop in 2.253628 seconds

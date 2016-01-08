@@ -1,32 +1,55 @@
-(* a set implemented using hashtables and a hashing function on elts *)
+(* a set implemented using hashtables *)
 
-(* FIXME this is wrong - we want a set using a hashtbl, but we want to
-   compute a key rather than hash *)
 
-module type Hashed_type_t = sig
+(* use a type isomorphic to the original - hashing may be expensive *)
+module type Iso_type_t = sig
   type t
-  type t_hashed
+  type t_iso
 
-  val hash: t -> t_hashed
+  val iso: t -> t_iso
 end
 
-module Default_hashset_impl(Hashed_type:Hashed_type_t) = struct
 
-  module Hashed_type = Hashed_type
+module Basic_hashset_impl(Iso_type:Iso_type_t) = struct
 
-  type elt = Hashed_type.t
-  type t = (Hashed_type.t_hashed,Hashed_type.t) Hashtbl.t (* set implemented as a map from t_hashed to t *)
+  module Iso_type = Iso_type
 
-  let hash = Hashed_type.hash
+  type elt = Iso_type.t
+  type t = (Iso_type.t_iso,unit) Hashtbl.t (* set implemented as a map from t_iso to t *)
+
+  let iso = Iso_type.iso
   
   let std_empty : unit -> t = fun () -> Hashtbl.create 17 (* FIXME *)
   let std_add : elt -> t -> t = (
     fun e s -> (
-        Hashtbl.replace s (hash e) e;
+        Hashtbl.replace s (iso e) ();
         s)
   )
   let std_mem : elt -> t -> bool = (
-    fun e s -> Hashtbl.mem s (hash e)
+    fun e s -> Hashtbl.mem s (iso e)
+  )
+  
+end  
+
+
+(* additional useful functions *)
+module Default_hashset_impl(Iso_type:Iso_type_t) = struct
+
+  module Iso_type = Iso_type
+
+  type elt = Iso_type.t
+  type t = (Iso_type.t_iso,Iso_type.t) Hashtbl.t (* set implemented as a map from t_iso to t *)
+
+  let iso = Iso_type.iso
+  
+  let std_empty : unit -> t = fun () -> Hashtbl.create 17 (* FIXME *)
+  let std_add : elt -> t -> t = (
+    fun e s -> (
+        Hashtbl.replace s (iso e) e;
+        s)
+  )
+  let std_mem : elt -> t -> bool = (
+    fun e s -> Hashtbl.mem s (iso e)
   )
 
   let fold : t -> (elt -> 'b -> 'b) -> 'b -> 'b = (
@@ -62,7 +85,7 @@ end
 
 
 
-module Default_hashmap_impl(K:Hashed_type_t)(V:Hashed_type_t) = struct
+module Default_hashmap_impl(K:Iso_type_t)(V:Iso_type_t) = struct
 
   module K = K
   module V = V
@@ -72,18 +95,18 @@ module Default_hashmap_impl(K:Hashed_type_t)(V:Hashed_type_t) = struct
 
   module V_set = Default_hashset_impl(V)
   
-  type t = (K.t_hashed,V_set.t) Hashtbl.t
+  type t = (K.t_iso,V_set.t) Hashtbl.t
 
   let map_empty : unit -> t = fun () -> Hashtbl.create 17
   let map_find : t -> key -> V_set.t = (
     fun m0 k0 -> (
-        let hk = K.hash k0 in
+        let hk = K.iso k0 in
         let s =
           try
             Hashtbl.find m0 hk
           with _ -> (
               let s = V_set.std_empty () in              
-              let _ = Hashtbl.replace m0 hk in
+              let () = Hashtbl.replace m0 hk s in
               s
             )
         in

@@ -62,7 +62,10 @@ end
 
 
 (*  FIXME probably have to restrict the type t in the following so that keys and valu types are explicit, and impl type is abstract *)
-module Default_map_impl(Key_ord: Map.OrderedType)(Value_ord:Map.OrderedType) : Mall with type key = Key_ord.t and type value = Value_ord.t = struct
+module
+  Bintree_map_impl(Key_ord: Map.OrderedType)(Value_ord:Map.OrderedType) :
+    Mall with type key = Key_ord.t and type value = Value_ord.t
+= struct
 
   type key = Key_ord.t
   type value = Value_ord.t
@@ -87,7 +90,7 @@ module Default_map_impl(Key_ord: Map.OrderedType)(Value_ord:Map.OrderedType) : M
    
 end
 
-module Default_set_impl(Elt_ord: Set.OrderedType) = struct
+module Bintree_set_impl(Elt_ord: Set.OrderedType) = struct
 
   module S = Set.Make(Elt_ord)
   type elt = Elt_ord.t
