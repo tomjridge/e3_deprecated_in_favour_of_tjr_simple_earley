@@ -2,6 +2,8 @@ SHELL:=bash
 
 default: all
 
+SRC_LINKED:=src.linked
+
 -include local.mk
 
 $(SRC_LINKED): 

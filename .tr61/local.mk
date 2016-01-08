@@ -1,5 +1,3 @@
-SRC_LINKED:=src.linked
-
 MLS:=$(filter-out test.ml interactive.ml, $(shell cd $(SRC_LINKED) && ocamlfind ocamldep -sort *.ml))
 
 mods_for_lib:
