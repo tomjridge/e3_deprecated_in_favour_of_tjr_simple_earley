@@ -87,25 +87,25 @@ module type Maps_t = sig
   
   open Map_set_types
 
-  type mbk_key = int * sym
-  type mbk_value = nt_item
+(*  type mbk_key = int * sym
+    type mbk_value = nt_item*)
   module Map_blocked_key :
-    (Mbk with type key=mbk_key and type value=mbk_value)
+    (Mbk with type key=(int * sym) and type value=(nt_item))
 
-  type mck_key = int * sym
-  type mck_value = sym_item
+(*  type mck_key = int * sym
+    type mck_value = sym_item *)
   module Map_complete_key :
-    (Mck with type key=mck_key and type value=mck_value)
+    (Mck with type key=(int * sym) and type value=sym_item)
 
-  type mti_key = tm * int
-  type mti_value = int
+(*  type mti_key = tm * int
+    type mti_value = int *)
   module Map_tm_int :
-    (Mti with type key=mti_key and type value=mti_value)
+    (Mti with type key=(tm * int) and type value=int)
   
-  type mssii_key = sym_list * sym * int * int
-  type mssii_value = int
+(*  type mssii_key = sym_list * sym * int * int
+    type mssii_value = int *)
   module Map_sym_sym_int_int :
-    (Mssii with type key=mssii_key and type value=mssii_value)
+    (Mssii with type key=(sym_list * sym * int * int) and type value=int)
 
 end
 
