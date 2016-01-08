@@ -1,6 +1,6 @@
 SHELL:=bash
 
-OB:=ocamlbuild -I src -cflag -w -cflag -8
+OB:=ocamlbuild -Is src,src/core,src/impl,src/sets_maps,src/test -cflag -w -cflag -8
 
 all:
 	$(OB) core_types.cmo core.cmo simple_impl.cmo hashtbl_impl.cmo test.native examples.native

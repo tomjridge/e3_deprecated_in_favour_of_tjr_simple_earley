@@ -1,4 +1,8 @@
 (* a set implemented using hashtables and a hashing function on elts *)
+
+(* FIXME this is wrong - we want a set using a hashtbl, but we want to
+   compute a key rather than hash *)
+
 module type Hashed_type_t = sig
   type t
   type t_hashed
