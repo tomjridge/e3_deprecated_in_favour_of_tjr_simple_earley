@@ -1,12 +1,14 @@
 (*
 
-#directory "/tmp/l/github/super/e3";;
+#directory "/tmp/l/github/e3/src";;
 
-#mod_use "e3_core_types.ml";;
-#mod_use "e3_core.ml";;
-#mod_use "e3_simple.ml";;
-#mod_use "e3_array.ml";;
-#mod_use "e3_examples.ml";;
-#mod_use "e3_test.ml";;
+#use "hashed_sets_and_maps.ml";;
+#use "set_map_types.ml";;
+#use "core_types.ml";;
+#use "core.ml";;
+#use "common_impl.ml";;
+#use "hashtbl_impl.ml";;
+#use "simple_impl.ml";;
+#use "examples.ml";;
 
 *)

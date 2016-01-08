@@ -2,6 +2,10 @@ MLS:=$(filter-out test.ml interactive.ml, $(shell cd src && ocamlfind ocamldep -
 mods_for_lib:
 	echo $(MLS) | .tr61/mods_for_lib.scala
 
+mods_for_int:
+	echo $(MLS) | .tr61/mods_for_int.scala
+
+
 order:
 	echo $(MLS)
 
