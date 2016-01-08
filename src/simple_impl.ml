@@ -44,7 +44,7 @@ end
 
 module Sets_maps = struct
 
-  open Map_set_types
+  open Set_map_types
   open Compare
       
   module S = Symbol

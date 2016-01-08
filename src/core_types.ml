@@ -92,7 +92,7 @@ module type Maps_t = sig
   module Item : Item_t
   open Item
   
-  open Map_set_types
+  open Set_map_types
 
 (*  type mbk_key = int * sym
     type mbk_value = nt_item*)
@@ -121,7 +121,7 @@ module type Sets_t = sig
 
   module Item : Item_t
 
-  open Map_set_types
+  open Set_map_types
 
   module Set_todo_done :
     (Set_t with type elt=Item.item)
