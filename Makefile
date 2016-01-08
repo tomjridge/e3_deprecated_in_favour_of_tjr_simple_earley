@@ -3,7 +3,7 @@ SHELL:=bash
 OB:=ocamlbuild -I src -cflag -w -cflag -8
 
 all:
-	$(OB) core_types.cmo map_set_types.cmo core.cmo simple.cmo test.cmo hashtbl_impl.cmo test.native 
+	$(OB) core_types.cmo map_set_types.cmo core.cmo simple_impl.cmo test.cmo hashtbl_impl.cmo test.native 
 
 cmi:
 	$(OB) symbol.cmi substring.cmi

@@ -134,7 +134,7 @@ match ops.dest_item itm0 with
            whether all these new items are already in set_todo_done
                when new_key - they aren't *)
         if new_key then (
-          match ops.sym_case sym with
+          match sym_case sym with
           | `NT nt -> (
               let rs = g0.nt_items_for_nt nt (i0.string5, ops.nt_dot_i9 nitm, ops.nt_dot_j9 nitm) in
               let f1 s1 pnitm = (
@@ -156,7 +156,7 @@ match ops.dest_item itm0 with
     let p = g0.p_of_tm tm in
     let i = ops.tm_dot_i9 titm in
     let rs = p (i0.string5,i,i0.length5) in 
-    let sym = ops.sym_of_tm tm in
+    let sym = sym_of_tm tm in
     let k = (i,sym) in
     (* lots of new complete items, so complete5 must be updated, but we must also process blocked *)
     (* let bitms = map_blocked_key.find2 k s0.blocked5 in *)

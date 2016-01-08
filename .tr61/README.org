@@ -580,3 +580,6 @@ Compilation exited abnormally with code 2 at Wed Dec 30 11:33:17
   - need a default symbol impl; a default item impl (given symbol);
     and several sets/maps impls (given symbol, item, and some
     additional ordering/enumeration info)
+* 2016-01-08 factorizing out the impl of sets and maps from simpl and hashtbl
+
+

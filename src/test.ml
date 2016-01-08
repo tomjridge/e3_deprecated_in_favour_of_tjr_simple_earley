@@ -45,9 +45,9 @@ let nt_items_for_nt=(fun nt (_,_,i) ->
 (* process grammar and input with earley *)
 
 let run_earley_string txt = (
-  let open Simple in
+  let open Simple_impl in
   let params = { nt_items_for_nt=nt_items_for_nt; p_of_tm=p_of_tm } in
-  Simple.run_earley 
+  Simple_impl.run_earley 
     params
     e'
     txt 

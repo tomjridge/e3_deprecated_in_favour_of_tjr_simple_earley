@@ -27,6 +27,13 @@ module type Symbol_t = sig
 
   type sym
 
+  (* FIXME these are repeated in ops, so why needed here? but
+     logically they belong here *)
+  val sym_case : sym -> [ `NT of nt | `TM of tm] 
+
+  val sym_of_tm : tm -> sym 
+
+  
 end
 
 
@@ -47,8 +54,8 @@ module type Item_t = sig
   type item
 
   type ops_t = {
-    sym_case       : sym -> [ `NT of nt | `TM of tm];
-    sym_of_tm      : tm -> sym;
+(*    sym_case       : sym -> [ `NT of nt | `TM of tm];
+      sym_of_tm      : tm -> sym; *)
     mk_tm_coord    : (tm * int) -> tm_item;
     tm5            : tm_item -> tm;
     mk_sym_coord   : (sym * int * int) -> sym_item;
