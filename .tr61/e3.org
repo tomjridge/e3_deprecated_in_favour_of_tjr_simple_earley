@@ -573,3 +573,58 @@ Start example 833 ......stop in 0.790363 seconds
 Start example u5o ......stop in 6.772121 seconds
 Start example 86f ......stop in 0.296937 seconds
 Start example 17y ......stop in 2.253628 seconds
+* 2016-01-14 array implementation
+
+  - we want to work exclusively with integers
+  - hashkey_t is misnamed; fixed
+  - we need a different representation of items which takes the rhs
+    into account; also shift should increment the index to avoid
+    recalculating the index every time
+    - an alternative is to tag every subrhs; this is probably better;
+      also need a tag for the empty rhs
+    - another alternative is to use an abstract type for items, which
+      is actually int, and index into an array for the ops
+      - this could be made general by assuming a function to map
+        nt_item to int, and feeding in knowledge of the items at the
+        start to enable precomputation; would have to feed in all
+        nt_items (disregarding their coords); this in turn assumes
+        that we are really abstracting over sym lists that can appear
+      - note that we also have to override equals for sym_list
+      - in fact, we are really thinking of abstracting over the *pair*
+        of sym lists in nt_item
+        - and then defining shift,b2_nil,a2,hd_b2
+    - might be worth introducing another type "rev_sym_list_t"? just
+      to makeit clear that things are stored in reverse?
+      - 
+  - the old e3_array looks like it just optimizes set_todo_done by
+    making a 2d array and indexing into this (with a set of nt_item as
+    before); this might have similar performance to a nested
+    hashtable, with the first key being (i,j); worth checking the
+    hashtable performance with this change?
+
+before:
+
+tr61@pc1177:/tmp/l/github/e3$ ./examples.native 
+Start example 833 ......stop in 0.798566 seconds
+Start example u5o ......stop in 6.851075 seconds
+Start example 86f ......stop in 0.297224 seconds
+Start example 17y ......stop in 2.32618 seconds
+
+after (with change to maps)
+tr61@pc1177:/tmp/l/github/e3$ ./examples.native 
+Start example 833 ......stop in 0.799895 seconds
+Start example u5o ......stop in 6.85153 seconds
+Start example 86f ......stop in 0.300005 seconds
+Start example 17y ......stop in 2.359839 seconds
+
+so no change (slightly worse)
+
+what about doing a similar thing for sets? no real change either
+
+  - so if we want better performance we should allocate the array and
+    use i,j to index into it
+  - but from comments in example.ml, it appears that the array was not
+    that much faster than the pure hashtable anyway
+  - so these changes are fruitless!
+
+

@@ -1,5 +1,6 @@
 (* a set implemented using hashtables *)
 
+let default_hashtbl_size = 100
 
 (* use a type isomorphic to the original - hashing may be expensive *)
 module type Iso_type_t = sig
@@ -19,7 +20,7 @@ module Basic_hashset_impl(Iso_type:Iso_type_t) = struct
 
   let iso = Iso_type.iso
   
-  let std_empty : unit -> t = fun () -> Hashtbl.create 17 (* FIXME *)
+  let std_empty : unit -> t = fun () -> Hashtbl.create default_hashtbl_size (* FIXME *)
   let std_add : elt -> t -> t = (
     fun e s -> (
         Hashtbl.replace s (iso e) ();
@@ -42,7 +43,7 @@ module Default_hashset_impl(Iso_type:Iso_type_t) = struct
 
   let iso = Iso_type.iso
   
-  let std_empty : unit -> t = fun () -> Hashtbl.create 17 (* FIXME *)
+  let std_empty : unit -> t = fun () -> Hashtbl.create default_hashtbl_size (* FIXME *)
   let std_add : elt -> t -> t = (
     fun e s -> (
         Hashtbl.replace s (iso e) e;
@@ -97,7 +98,7 @@ module Default_hashmap_impl(K:Iso_type_t)(V:Iso_type_t) = struct
   
   type t = (K.t_iso,V_set.t) Hashtbl.t
 
-  let map_empty : unit -> t = fun () -> Hashtbl.create 17
+  let map_empty : unit -> t = fun () -> Hashtbl.create default_hashtbl_size
   let map_find : t -> key -> V_set.t = (
     fun m0 k0 -> (
         let hk = K.iso k0 in
