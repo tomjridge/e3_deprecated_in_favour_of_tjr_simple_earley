@@ -22,6 +22,12 @@ dep_with_dirs:
 depend:
 	cd $(SRC_LINKED) &&  ocamlfind ocamldep *.mli *.ml
 
+
+ED:=/tmp/l/Dropbox/www_resources/e3/e3.docdir
+export: e3.docdir
+	-rm -rf $(ED)/e3.docdir
+	cp -R $< $(ED)
+
 FORCE:
 
 
