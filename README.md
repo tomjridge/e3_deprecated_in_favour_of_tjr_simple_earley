@@ -22,7 +22,7 @@ Alternatively via nix:
 nix-build
 ~~~
 
-The result will be in ./result
+The result will be in `./result`
 
 
 To build API-doc:
