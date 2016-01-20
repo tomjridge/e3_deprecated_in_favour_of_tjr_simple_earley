@@ -18,7 +18,7 @@ OB:=ocamlbuild -I $(SRC_LINKED) -cflag -w -cflag -8
 
 OD:=ocamlfind ocamldoc
 
-all: e3.cma e3.cmxa test.native examples.native
+all: test.native examples.native e3.cma e3.cmxa 
 
 %.cma: $(SRC_LINKED)
 	$(OB) $@

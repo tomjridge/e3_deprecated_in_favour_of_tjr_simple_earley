@@ -20,7 +20,7 @@ stdenv.mkDerivation {
     
       configurePhase = "true"; 	# Skip configure
   
-      postInstall="cp -R _build/src/* $out";
+      postInstall="cp -R _build/src.linked/* $out";
            
       createFindlibDestdir = true;
 }
