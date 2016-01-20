@@ -23,3 +23,12 @@ depend:
 	cd $(SRC_LINKED) &&  ocamlfind ocamldep *.mli *.ml
 
 FORCE:
+
+
+# FIXME what was this supposed to do? do a minimal build? 
+cmi: _build/cmi
+
+_build/cmi: $(SRC_LINKED)
+	$(OB) impl_t.cmi hashtbl_impl.cmi simple_impl.cmi
+	touch $@
+

@@ -3,6 +3,7 @@ SHELL:=bash
 default: all
 
 SRC_LINKED:=src.linked
+BS:=_build/$(SRC_LINKED)
 
 -include local.mk
 
@@ -18,7 +19,7 @@ OB:=ocamlbuild -I $(SRC_LINKED) -cflag -w -cflag -8
 
 OD:=ocamlfind ocamldoc
 
-all: test.native examples.native e3.cma e3.cmxa 
+all: e3.cma e3.cmxa test.native examples.native 
 
 %.cma: $(SRC_LINKED)
 	$(OB) $@
@@ -30,17 +31,8 @@ all: test.native examples.native e3.cma e3.cmxa
 	$(OB) $@
 
 
-cmi: _build/cmi
-
-_build/cmi:
-	$(OB) hashed_sets_and_maps.cmi set_map_types.cmi \
-	  core_types.cmi core.cmi common_impl.cmi hashtbl_impl.cmi simple_impl.cmi
-	touch $@
-
-
 install: all
-	ocamlfind install e3 META \
-	  _build/src/*.cmi  _build/src/e3.cma _build/src/e3.cmxa _build/src/e3.a
+	ocamlfind install e3 META $(BS)/*.cmi $(BS)/e3.cma $(BS)/e3.cmxa # _build/src/e3.a
 
 
 test: test.native
@@ -50,11 +42,10 @@ test: test.native
 doc: simple_doc
 
 
-# FIXME this doesn't seem to work
 simple_doc: test.native # to force compile
 	-mkdir $@
-	$(OD) -html -I _build/$(SRC_LINKED) -d $@ $(SRC_LINKED)/impl_t.mli $(SRC_LINKED)/hashtbl_impl.mli \
-	  $(SRC_LINKED)/simple_impl.mli
+	$(OD) -html -I _build/$(SRC_LINKED) -d $@ \
+	  $(SRC_LINKED)/impl_t.mli $(SRC_LINKED)/hashtbl_impl.mli $(SRC_LINKED)/simple_impl.mli
 
 # various errors, not clear why
 e3.docdir:  test.native # to force compile
@@ -64,6 +55,7 @@ e3.docdir:  test.native # to force compile
 clean:
 	$(OB) -clean
 	rm -rf $(SRC_LINKED) simple_doc
+	rm result
 
 FORCE:
 
