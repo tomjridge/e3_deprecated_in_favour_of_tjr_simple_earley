@@ -101,6 +101,7 @@ module type Maps_t = sig
 
 (*  type mck_key = int * sym
     type mck_value = sym_item *)
+  (* FIXME surely we only need ints as values? *)
   module Map_complete_key :
     (Mck with type key=(int * sym) and type value=sym_item)
 
@@ -197,7 +198,7 @@ module type Earley_state_t = sig
     todo_done5: Set_todo_done.t;
     todo5: item list;
     oracle5: Map_sym_sym_int_int.t;
-    tmoracle5: Map_tm_int.t;
+    (*    tmoracle5: Map_tm_int.t; *)
     blocked5: Map_blocked_key.t;
     complete5: Map_complete_key.t;
   }

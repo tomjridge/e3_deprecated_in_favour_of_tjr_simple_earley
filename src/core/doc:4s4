@@ -10,3 +10,17 @@ in reverse order).
 
 `cut` checks that `nitm` is new, and if so it is added to the list of
 items that need processing via `add_todo`.
+
+`cut` now updates the oracle, as well as `todo_done`.
+
+---
+
+cut not updating the oracle:
+
+Start example 833 ......stop in 0.791736 seconds
+Start example u5o ......stop in 6.784214 seconds
+Start example 86f ......stop in 0.29741 seconds
+Start example 17y ......stop in 2.169559 seconds
+
+
+cut updating the oracle:

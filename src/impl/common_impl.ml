@@ -142,7 +142,7 @@ module
       todo_done5: Set_todo_done.t;
       todo5: item list;
       oracle5: Map_sym_sym_int_int.t;
-      tmoracle5: Map_tm_int.t;
+      (*      tmoracle5: Map_tm_int.t; *)
       blocked5: Map_blocked_key.t;
       complete5: Map_complete_key.t;
     }
@@ -180,7 +180,7 @@ module
         todo_done5=Sets.Set_todo_done.std_empty();
         todo5=[item0];
         oracle5=Maps.Map_sym_sym_int_int.map_empty();
-        tmoracle5=Maps.Map_tm_int.map_empty();
+        (*        tmoracle5=Maps.Map_tm_int.map_empty(); *)
         blocked5=Maps.Map_blocked_key.map_empty();
         complete5=Maps.Map_complete_key.map_empty();
       }
@@ -214,7 +214,10 @@ module
             Maps.Map_sym_sym_int_int.mssii_elts_cod (syms1,sym2,i,j) s1.oracle5)
         in
         let tm_oracle = (fun tm -> fun (i,j) ->
-            Maps.Map_tm_int.map_find_cod (tm,i) j s1.tmoracle5)
+            (* FIXME inefficient? *)
+            let key = (i,`NT tm) in
+            let v = (`NT tm,i,j) in
+            Maps.Map_complete_key.map_find_cod key v s1.complete5)
         in
         (oracle,tm_oracle)
       )

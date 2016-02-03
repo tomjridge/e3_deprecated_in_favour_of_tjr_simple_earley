@@ -39,8 +39,12 @@ module type Mbk = sig
   include Mce with type t:=t and type key := key and type value:=value
 end
 
-module type Mck = sig include Mfc end
+module type Mck = sig
+  include Mfc
+  val map_find_cod: key -> value -> t -> bool
+end
 
+(* FIXME obsolete *)
 module type Mti = sig
   include Map_t
   val map_find_cod: key -> value -> t -> bool
