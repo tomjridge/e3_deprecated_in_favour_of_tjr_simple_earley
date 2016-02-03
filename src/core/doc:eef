@@ -1,4 +1,0 @@
-Update the oracle for terminals.
-
-The (tm,i,j) argument indicates that terminal tm could be parsed
-between positions i and j.

@@ -216,7 +216,7 @@ module
         let tm_oracle = (fun tm -> fun (i,j) ->
             (* FIXME inefficient? *)
             let key = (i,`NT tm) in
-            let v = (`NT tm,i,j) in
+            let v = j in
             Maps.Map_complete_key.map_find_cod key v s1.complete5)
         in
         (oracle,tm_oracle)

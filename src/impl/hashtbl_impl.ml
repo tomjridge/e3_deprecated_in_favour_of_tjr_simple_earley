@@ -101,12 +101,13 @@ module
       let iso : t -> t_iso = fun x -> x
     end
 
+    (*
     module Iso_tm_int = struct 
       type t = tm * int
       type t_iso = (Iso_params.iso_tm_t * int)
       let iso : t -> t_iso = fun (x,y) -> (Iso_params.tm_to_iso x,y)
     end
-
+    *)
 
     module Iso_ssii = struct
       type t = sym_list * sym * int * int 
@@ -119,9 +120,9 @@ module
     
     module Map_blocked_key = Default_hashmap_impl(Iso_int_sym)(Iso_nt_item)
 
-    module Map_complete_key = Default_hashmap_impl(Iso_int_sym)(Iso_sym_item)
+    module Map_complete_key = Default_hashmap_impl(Iso_int_sym)(Iso_int)
 
-    module Map_tm_int = Default_hashmap_impl(Iso_tm_int)(Iso_int)
+    (* module Map_tm_int = Default_hashmap_impl(Iso_tm_int)(Iso_int) *)
 
     module Map_sym_sym_int_int = Default_hashmap_impl(Iso_ssii)(Iso_int)
     

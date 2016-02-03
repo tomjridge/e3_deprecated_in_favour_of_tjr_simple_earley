@@ -45,10 +45,12 @@ module type Mck = sig
 end
 
 (* FIXME obsolete *)
+(*
 module type Mti = sig
   include Map_t
   val map_find_cod: key -> value -> t -> bool
 end
+*)
 
 module type Mssii = sig
   include Map_t
