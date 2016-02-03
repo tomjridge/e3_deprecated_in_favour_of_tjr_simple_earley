@@ -122,3 +122,28 @@ Start example 86f ......stop in 0.29348 seconds
 Start example 17y ......stop in 2.166436 seconds
 
 so no real difference
+
+---
+
+Thoughts on sequencing of todo items:
+
+Probably the largest cost is repeatedly accessing todo_done5.
+
+  * changing `cut` so that `std_add` returns an indication of whether
+    the item was already there (thus avoiding the need for `std_mem`)
+    might cut the time in half
+
+The other degree of freedom is the order in which items are processed.
+
+`X -> xs.y ys,i,k` is cut with `y,k,j`, with new item `X -> y xs.ys,i,j`
+
+  * we could process all `k` items before progressing to `k+1`;
+    `todo_done` could then be indexed by ?
+
+A_{i,j} = matrix A ,row i, col j
+
+(AB)_{i,j} = Sigma_k A_{i,k}B_{k,j}
+
+But Earley is essentially an optimization of matrix multiplication. In
+what sense, exactly? We don't try all i <= k <= j, just those that
+arise during the parse, from blocked items.

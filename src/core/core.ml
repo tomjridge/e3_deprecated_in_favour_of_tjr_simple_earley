@@ -29,17 +29,6 @@ module
   open Ctxt
   open Earley_state
 
-  (* doc:abc *)
-  let update_oracle:
-    Map_sym_sym_int_int.t -> nt_item * int ->
-    Map_sym_sym_int_int.t
-    = (fun m (itm,j) ->
-        let (syms1,sym2) = (ops.a2 itm,ops.hd_b2 itm) in
-        let (i,k) = (ops.nt_dot_i9 itm,ops.nt_dot_j9 itm) in
-        let key = (syms1,sym2,i,j) in
-        let m = Maps.Map_sym_sym_int_int.map_add_cod key k m in 
-        m)
-
   
   let todo_is_empty s0 = (s0.todo5=[])
 
@@ -62,6 +51,15 @@ module
         (ops.shift_a2_b2_c2 bitm) |> (fun x -> ops.with_j9 x j)
       ))
 
+  (* doc:abc *)
+  let update_oracle:
+    Map_sym_sym_int_int.t -> nt_item * int -> Map_sym_sym_int_int.t = (
+    fun m (itm,j) ->
+      let (syms1,sym2) = (ops.a2 itm,ops.hd_b2 itm) in
+      let (i,k) = (ops.nt_dot_i9 itm,ops.nt_dot_j9 itm) in
+      let key = (syms1,sym2,i,j) in
+      let m = Maps.Map_sym_sym_int_int.map_add_cod key k m in 
+      m)
   
   (* doc:4s4 *)
   let cut: nt_item -> int -> ty_loop2 -> ty_loop2 = (
@@ -99,7 +97,8 @@ match ops.dest_item itm0 with
           (ops.nt2 nitm, ops.nt_dot_i9 nitm, ops.nt_dot_j9 nitm) in
         let key = (k,citm_sym) in
         (* 12 check whether citm has already been done? no improvement *)
-        (* record complete item *)
+        (* record complete item; FIXME would like to have an
+           indication of whether the j was already in the cod *)
         let s0 =
           {s0 with
            complete5=(Map_complete_key.map_add_cod key j s0.complete5)}
