@@ -1,0 +1,16 @@
+Take the oracle, an nt_item and an int l, and return the updated oracle.
+
+The nt_item is of the form X -> xs.y ys,i,j
+
+The l indicates that y could be parsed from j to posn l:
+
+i xs j y l
+
+Thus, the key is (xs,y,i,l), and we need to insert j into the map.
+
+--
+
+FIXME perhaps the key should rather be i xs y l ?
+
+FIXME there is a mismatch between the i,j used in items, and the i,k,j
+used in cut spans.

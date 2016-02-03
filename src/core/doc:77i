@@ -1,0 +1,17 @@
+The state maintained during the Earley loop.
+
+todo_done5 contains all items that have been processed, or are in
+todo5. This makes it easy to detect whether we have already seen an
+item.
+
+todo5 contains the pending items.
+
+oracle5 is the oracle. See doc:abc
+
+tmoracle5 is the oracle for terminals.
+
+blocked5 contains the blocked items, i.e. those of the form X -> xs.y
+yxs,i,j where we are waiting for symbol y to complete.
+
+complete5 contains the blocked items of the form y,i,j which will be
+cut with blocked items.

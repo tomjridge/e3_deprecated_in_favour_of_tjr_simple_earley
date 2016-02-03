@@ -1,0 +1,12 @@
+Take a blocked item, and a complete item, and produce a new item to be
+processed.
+
+The blocked item `bitm` is of the form `X -> xs.y ys,i,j`
+
+The complete item citm is of the form `X,j,k`
+
+The new item `nitm` is `X -> y::xs,ys,i,k` (since the `xs` is stored
+in reverse order).
+
+`cut` checks that `nitm` is new, and if so it is added to the list of
+items that need processing via `add_todo`.

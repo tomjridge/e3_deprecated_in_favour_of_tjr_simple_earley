@@ -1,0 +1,72 @@
+The main loop of the Earley implementation.
+
+`itm0` is an item that is pending.
+
+At (10) we are processing an `NTITM`. The item is complete if of the
+form `X -> xs. ,i,j`.
+
+If the item is complete, we construct a complete item `citm` of the
+form `x,i,j`. To process against blocked items we need the key `i,x`
+
+At (15) we process `citm` against relevant blocked items.
+
+First we cut `citm` against all `bitm`s by folding a function over the
+blocked items.
+
+Then we add `citm` to `complete5`.
+
+Then we update the oracle, again by folding a function over the
+blocked items.
+
+FIXME could combine the folds.
+
+
+At (20) we are processing an `NTITM` that is not complete ie it is a
+blocked item `bitm`. The item is of the form `X -> xs.y ys,i,j`.
+
+`sym` is the `y`
+`k` is the key, `(j,sym)`
+
+`new_key`: there are two cases, depending on whether this key is new
+or not.
+
+At (25) we record the blocked item.
+
+We then process the blocked item against all complete items, using
+`Map_complete_key.map_fold_cod`
+
+At (30) we update the oracle, again using `Map_complete_key.map_fold_cod`.
+
+FIXME This seems unnecessarily expensive since `cut` effectively
+knows the new items, and should update the oracle at the previous line.
+
+At (40) we see the use of `new_key`. Recall that we have a blocked
+item. The item is blocked at posn `j` in the input, and we are trying
+to parse a `sym` from that point. Obviously we need to add new items,
+but only if we have not done so previously.
+
+The invariant should be: `(j,sym)` is nonempty iff all items for
+`(j,sym)` are already in `todo_done5
+
+FIXME in which case we don't have to check whether all these new items
+are already in todo_done5 -- they aren't
+
+
+At (50) we are processing a `TMITM titm`
+
+This creates lots of complete terminal items `rs` of the form
+`(x,i,j)`. The key `k` is `(i,x)`.
+
+At (60) we update the complete items using `map_add_cod`.
+
+At (70) we process each complete item against the blocked items to get
+new items.
+
+We also update the oracle.
+
+And finally the tmoracle.
+
+---
+
+FIXME the tmoracle is obsolete?
+

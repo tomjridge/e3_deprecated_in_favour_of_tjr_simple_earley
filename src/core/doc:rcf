@@ -1,0 +1,4 @@
+Add an item to the set of todos.
+
+Notice that no checks are done on whether itm is already in
+todo_done5. Invariant: it is assumed that it is not.

@@ -192,6 +192,7 @@ module type Earley_state_t = sig
   open Maps
   open Sets
 
+  (* doc:77i *)
   type ty_loop2 = {
     todo_done5: Set_todo_done.t;
     todo5: item list;
