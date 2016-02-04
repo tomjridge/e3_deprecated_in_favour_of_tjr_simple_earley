@@ -6,9 +6,8 @@ module type Set_t = sig
   type t
   val std_empty: unit -> t
 
-  (** We assume that, if the element is already in the set, the set is
-      returned unchanged, i.e. s' == s *)
-  val std_add: elt -> t -> t
+  (* indicate whether the elt was already in the set *)
+  val std_add: elt -> t -> (t * bool)
     
   val std_mem: elt -> t -> bool
   
@@ -106,7 +105,7 @@ module Bintree_set_impl(Elt_ord: Set.OrderedType) = struct
   type elt = Elt_ord.t
   type t = S.t
   let std_empty () = S.empty
-  let std_add x s = S.add x s
+  let std_add x s = (let s' = S.add x s in (s',(s'==s)))
   let std_mem x s = S.mem x s
 
 end

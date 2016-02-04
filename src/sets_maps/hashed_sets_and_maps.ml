@@ -1,6 +1,6 @@
 (* a set implemented using hashtables *)
 
-let default_hashtbl_size = 201
+let default_hashtbl_size = 100
 
 (* use a type isomorphic to the original - hashing may be expensive *)
 module type Iso_type_t = sig
@@ -16,15 +16,17 @@ module Basic_hashset_impl(Iso_type:Iso_type_t) = struct
   module Iso_type = Iso_type
 
   type elt = Iso_type.t
-  type t = (Iso_type.t_iso,unit) Hashtbl.t (* set implemented as a map from t_iso to t *)
+  type t = (Iso_type.t_iso,unit) Hashtbl.t (* set implemented as a map from t_iso to unit *)
 
   let iso = Iso_type.iso
   
-  let std_empty : unit -> t = fun () -> Hashtbl.create default_hashtbl_size (* FIXME *)
-  let std_add : elt -> t -> t = (
+  let std_empty : unit -> t = fun () -> Hashtbl.create default_hashtbl_size
+  let std_add : elt -> t -> (t * bool) = (
     fun e s -> (
-        Hashtbl.replace s (iso e) ();
-        s)
+        let before = Hashtbl.length s in
+        let _ = Hashtbl.replace s (iso e) () in
+        let after = Hashtbl.length s in
+        (s,before==after)) (* check whether elt was already in the set *)
   )
   let std_mem : elt -> t -> bool = (
     fun e s -> Hashtbl.mem s (iso e)
@@ -43,12 +45,16 @@ module Default_hashset_impl(Iso_type:Iso_type_t) = struct
 
   let iso = Iso_type.iso
   
-  let std_empty : unit -> t = fun () -> Hashtbl.create default_hashtbl_size (* FIXME *)
-  let std_add : elt -> t -> t = (
+  let std_empty : unit -> t = fun () -> Hashtbl.create default_hashtbl_size 
+  let std_add : elt -> t -> (t * bool) = (
     fun e s -> (
-        Hashtbl.replace s (iso e) e;
-        s)
+        let before = Hashtbl.length s in
+        let _ = Hashtbl.replace s (iso e) e in
+        let after = Hashtbl.length s in
+        (s,before=after) (* check whether elt was already in the set *)
+      )
   )
+
   let std_mem : elt -> t -> bool = (
     fun e s -> Hashtbl.mem s (iso e)
   )

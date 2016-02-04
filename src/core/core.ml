@@ -32,15 +32,24 @@ module
   
   let todo_is_empty s0 = (s0.todo5=[])
 
+  let unsafe_add_todo s0 itm = (
+    let td = s0.todo_done5 in
+    let (td',itm_already_present) = Set_todo_done.std_add itm td in
+    let _ = assert (not itm_already_present) in
+    { s0 with
+      todo5=(itm::s0.todo5);
+      todo_done5=td' }
+  )
   
   (* doc:rcf *)
   let add_todo s0 itm = (
     let td = s0.todo_done5 in
     (* O(ln n) *)
-    let td' = Set_todo_done.std_add itm td in
-    let itm_already_present = (td' == td) in 
+    let present = Set_todo_done.std_mem itm td in
+    let (td',itm_already_present) = Set_todo_done.std_add itm td in
+    let _ = assert (present = itm_already_present) in
     { s0 with 
-      todo5=(if itm_already_present then s0.todo5 else itm::s0.todo5); 
+      todo5=(if present then s0.todo5 else itm::s0.todo5); 
       todo_done5=td' })
   
   
@@ -127,14 +136,14 @@ match ops.dest_item itm0 with
               let f1 s1 nitm = (
                 let itm = ops.mk_item (`NTITM nitm) in
                 (* new_key=true, so no need to check todo_done *)
-                add_todo s1 itm)
+                unsafe_add_todo s1 itm)
               in
               let s0 = List.fold_left f1 s0 rs in
               s0)
           | `TM tm -> (
               let titm = ops.mk_item(`TMITM(ops.mk_tm_coord (tm,k))) in
               (* new_key=true, so no need to check todo_done *)
-              add_todo s0 titm))
+              unsafe_add_todo s0 titm))
         else
           s0
       ))
