@@ -157,6 +157,7 @@ match ops.dest_item itm0 with
     let f5 s1 j =
       { s1 with complete5=(Map_complete_key.map_add_cod key j s1.complete5)}
     in
+    (* FIXME could combine this fold over rs with the following *)
     let s0 = List.fold_left f5 s0 rs in
     (* 70 cut citm against blocked *)
     let f8 s1 j = (

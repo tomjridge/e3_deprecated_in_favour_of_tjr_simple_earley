@@ -8,21 +8,17 @@ form `X -> xs. ,i,j`.
 If the item is complete, we construct a complete item `citm` of the
 form `x,i,j`. To process against blocked items we need the key `i,x`
 
-At (12) we could check whether the complete item has already been
-processed, but this didn't seem to improve performance much, and adds
-an extra function to the map_complete_key interface.
+At (12) we are processing a complete item. We could check whether the
+complete item has already been processed, but this didn't seem to
+improve performance much, and adds an extra function to the
+map_complete_key interface.
 
 At (15) we process `citm` against relevant blocked items.
 
-First we cut `citm` against all `bitm`s by folding a function over the
+We add `citm` to `complete5`.
+
+The we cut `citm` against all `bitm`s by folding a function over the
 blocked items.
-
-Then we add `citm` to `complete5`.
-
-Then we update the oracle, again by folding a function over the
-blocked items.
-
-FIXME could combine the folds.
 
 
 At (20) we are processing an `NTITM` that is not complete ie it is a
@@ -41,23 +37,24 @@ We then process the blocked item against all complete items, using
 
 
 At (40) we see the use of `new_key`. Recall that we have a blocked
-item. The item is blocked at posn `j` in the input, and we are trying
+item. The item is blocked at posn `k` in the input, and we are trying
 to parse a `sym` from that point. Obviously we need to add new items,
 but only if we have not done so previously.
 
-The invariant should be: `(j,sym)` is nonempty iff all items for
-`(j,sym)` are already in `todo_done5
+The invariant should be: `(k,sym)` is nonempty iff all items for
+`(k,sym)` are already in `todo_done5
 
 
 At (50) we are processing a `TMITM titm`
 
 This creates lots of complete terminal items `rs` of the form
-`(x,k,j)`. The `key` is `(k,x)`.
+`(sym,k,j)`. The `key` is `(k,sym)` (`sym` is a terminal).
 
-At (60) we update the complete items using `map_add_cod`.
+At (60) we update the complete items using `map_add_cod`, and folding
+over the complete items `rs`.
 
 At (70) we process each complete item against the blocked items to get
-new items.
+new items, again by folding over `rs`.
 
 At (80) we know that the citm is new, but it is still possible that
 the new item from the cut has already been processed. The `citm` is of
