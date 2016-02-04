@@ -1,3 +1,7 @@
+OCAMLC:=/tmp/l/nix-profile/bin/ocamlc
+OCAMLOPT:=/tmp/l/nix-profile/bin/ocamlopt
+OB:=ocamlbuild -ocamlc $(OCAMLC) -ocamlopt $(OCAMLOPT) -I $(SRC_LINKED) -cflag -w -cflag -8
+
 # most targets below need src.linked
 MLS:=$(filter-out examples.ml test.ml interactive.ml, $(shell cd $(SRC_LINKED) && ocamlfind ocamldep -sort *.ml))
 MLIS:=$(filter-out test.mli, $(shell cd $(SRC_LINKED) && ocamlfind ocamldep -sort *.mli))

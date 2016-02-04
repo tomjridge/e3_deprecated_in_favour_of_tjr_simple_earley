@@ -5,6 +5,11 @@ default: all
 SRC_LINKED:=src.linked
 BS:=_build/$(SRC_LINKED)
 
+# OB_IS:=-Is src,src/core,src/impl,src/sets_maps,src/test
+OB:=ocamlbuild -I $(SRC_LINKED) -cflag -w -cflag -8
+
+OD:=ocamlfind ocamldoc
+
 -include local.mk
 
 # need to rebuild on addition/removal of files
@@ -14,20 +19,15 @@ $(SRC_LINKED):
 	cd $@ && find ../src -type f -exec ln -s \{\} . \;
 	ln -s ../.tr61/interactive.ml $@
 
-# OB_IS:=-Is src,src/core,src/impl,src/sets_maps,src/test
-OB:=ocamlbuild -I $(SRC_LINKED) -cflag -w -cflag -8
-
-OD:=ocamlfind ocamldoc
-
 all: e3.cma e3.cmxa test.native examples.native 
 
-%.cma: $(SRC_LINKED)
+%.cma: $(SRC_LINKED) FORCE
 	$(OB) $@
 
-%.cmxa: $(SRC_LINKED)
+%.cmxa: $(SRC_LINKED) FORCE
 	$(OB) $@
 
-%.native: $(SRC_LINKED)
+%.native: $(SRC_LINKED) FORCE
 	$(OB) $@
 
 

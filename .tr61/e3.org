@@ -632,3 +632,9 @@ what about doing a similar thing for sets? no real change either
   - so these changes are fruitless!
 
 
+* 2016-02-04 timings on pc1177 with single insert into std, and boolean to indicate whether item was already present
+
+Start example 833 ......stop in 0.691734 seconds
+Start example u5o ......stop in 6.021071 seconds
+Start example 86f ......stop in 0.239377 seconds
+Start example 17y ......stop in 1.873853 seconds

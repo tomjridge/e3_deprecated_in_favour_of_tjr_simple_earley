@@ -1,5 +1,7 @@
 # OCaml Earley parser
 
+Requires very new OCaml: <https://github.com/ocaml/ocaml/commit/30bb2c39d8509dc741c0321c700b512820059eb3>
+
 To get:
 
 ~~~

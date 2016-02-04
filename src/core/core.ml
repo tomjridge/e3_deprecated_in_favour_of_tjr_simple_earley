@@ -35,7 +35,7 @@ module
   let unsafe_add_todo s0 itm = (
     let td = s0.todo_done5 in
     let (td',itm_already_present) = Set_todo_done.std_add itm td in
-    let _ = assert (not itm_already_present) in
+    (*    let _ = assert (not itm_already_present) in *)
     { s0 with
       todo5=(itm::s0.todo5);
       todo_done5=td' }
@@ -45,11 +45,11 @@ module
   let add_todo s0 itm = (
     let td = s0.todo_done5 in
     (* O(ln n) *)
-    let present = Set_todo_done.std_mem itm td in
+    (* let present = Set_todo_done.std_mem itm td in *)
     let (td',itm_already_present) = Set_todo_done.std_add itm td in
-    let _ = assert (present = itm_already_present) in
+    (* let _ = assert (present = itm_already_present) in *)
     { s0 with 
-      todo5=(if present then s0.todo5 else itm::s0.todo5); 
+      todo5=(if itm_already_present then s0.todo5 else itm::s0.todo5); 
       todo_done5=td' })
   
   
