@@ -54,8 +54,8 @@ e3.docdir:  test.native # to force compile
 
 clean:
 	$(OB) -clean
-	rm -rf $(SRC_LINKED) simple_doc
-	rm result
+	-rm -rf $(SRC_LINKED) simple_doc
+	-rm result
 
 FORCE:
 

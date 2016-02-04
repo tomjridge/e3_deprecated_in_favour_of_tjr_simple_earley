@@ -1,6 +1,6 @@
 (* a set implemented using hashtables *)
 
-let default_hashtbl_size = 100
+let default_hashtbl_size = 201
 
 (* use a type isomorphic to the original - hashing may be expensive *)
 module type Iso_type_t = sig

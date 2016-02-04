@@ -1,11 +1,15 @@
 
-(* basic set *)
+(** basic set *)
 module type Set_t = sig
 
   type elt
   type t
   val std_empty: unit -> t
+
+  (** We assume that, if the element is already in the set, the set is
+      returned unchanged, i.e. s' == s *)
   val std_add: elt -> t -> t
+    
   val std_mem: elt -> t -> bool
   
 end

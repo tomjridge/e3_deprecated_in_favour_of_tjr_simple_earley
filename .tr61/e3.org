@@ -3,6 +3,10 @@
     this performed as hashtables)
 
 
+  - need to start counting operations, sizes of datastructures etc to
+    determine where the performance can be improved
+
+
 * 2015-12-25 
 
   - map/set types

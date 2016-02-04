@@ -1,4 +1,6 @@
 Add an item to the set of todos.
 
-Notice that no checks are done on whether itm is already in
-todo_done5. Invariant: it is assumed that it is not.
+Note that we perform a shallow check `td' == td` whether the element
+was already in the set. This avoids checking with `std_mem`
+first. This should save a lot of time, but performance seems barely
+changed.

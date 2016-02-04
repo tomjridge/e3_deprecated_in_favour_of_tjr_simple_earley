@@ -34,10 +34,14 @@ module
 
   
   (* doc:rcf *)
-  let add_todo s0 itm = {
-    s0 with 
-    todo5=(itm::s0.todo5); 
-    todo_done5=(Set_todo_done.std_add itm s0.todo_done5) }
+  let add_todo s0 itm = (
+    let td = s0.todo_done5 in
+    (* O(ln n) *)
+    let td' = Set_todo_done.std_add itm td in
+    let itm_already_present = (td' == td) in 
+    { s0 with 
+      todo5=(if itm_already_present then s0.todo5 else itm::s0.todo5); 
+      todo_done5=td' })
   
   
   let pop_todo s0 = (
@@ -66,17 +70,11 @@ module
     fun bitm j s0 ->
       let nitm = ops.mk_item (`NTITM (new_nt_item bitm j)) in
       (* update the oracle *)
-      let s0 = { s0 with oracle5=(update_oracle s0.oracle5 (bitm,j)) } in
       (* O(ln n) with sets implemented as binary trees; if this
          could be made O(1) our implementation would be O(n^3)
          overall *)
-      (* FIXME ideally we would insert into the set todo_done, and
-         get an indication of whether the elt was already there;
-         this would save the double access to the set *)
-      if (Set_todo_done.std_mem nitm s0.todo_done5) then
-        s0
-      else
-        add_todo s0 nitm)
+      let s0 = { s0 with oracle5=(update_oracle s0.oracle5 (bitm,j)) } in
+      add_todo s0 nitm)
 
 
   (* doc:ixo *)
