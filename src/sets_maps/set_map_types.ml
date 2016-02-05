@@ -106,11 +106,17 @@ module Bintree_set_impl(Elt_ord: Set.OrderedType) = struct
   type t = S.t
   let std_empty () = S.empty
   let std_mem x s = S.mem x s
+  (* use this in 4.03 after 30bb2c39d8509dc741c0321c700b512820059eb *)
   let std_add x s = (
     (* let present = std_mem x s in *)
     let s' = S.add x s in
-    let present' = (s' == s) in (* note above only works after 30bb2c39d8509dc741c0321c700b512820059eb *)
+    let present' = (s' == s) in 
     (* let _ = assert (present' = present) in *)
     (s',present'))
-
+  (* use this < 4.03 *)
+  let std_add' x s = (
+    let present = S.mem x s in
+    let s' = S.add x s in
+    (s',present))
+  
 end

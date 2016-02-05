@@ -1,3 +1,4 @@
+#to use a specific version of ocaml from nix
 OCAMLC:=/tmp/l/nix-profile/bin/ocamlc
 OCAMLOPT:=/tmp/l/nix-profile/bin/ocamlopt
 OB:=ocamlbuild -ocamlc $(OCAMLC) -ocamlopt $(OCAMLOPT) -I $(SRC_LINKED) -cflag -w -cflag -8

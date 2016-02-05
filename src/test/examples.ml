@@ -1,10 +1,9 @@
 (* update GC params - only for native compiled code, not interactive
    top-level where it causes an Out_of_memory exception *)
 
-let _ = 
+let _ = (
   let open Gc in
-  set { (get()) with max_overhead=1000000; space_overhead=1000000 }
-
+  set { (get()) with max_overhead=1000000; space_overhead=1000000 })
 
 (**********************************************************************)
 (* timing function *)
@@ -127,3 +126,5 @@ Start example u5o ......stop in 1.856355 seconds
 Start example 86f ......stop in 0.219536 seconds
 Start example 17y ......stop in 1.804879 seconds
 *)
+
+(* let _ = Gc.print_stat stdout *)
