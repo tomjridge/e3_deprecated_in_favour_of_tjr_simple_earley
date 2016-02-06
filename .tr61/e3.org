@@ -638,3 +638,36 @@ Start example 833 ......stop in 0.691734 seconds
 Start example u5o ......stop in 6.021071 seconds
 Start example 86f ......stop in 0.239377 seconds
 Start example 17y ......stop in 1.873853 seconds
+
+* 2016-02-06 thoughts on further optimization
+
+  - need to get more info on the frequency of various operations, and
+    their cost
+  -
+
+
+* 2016-02-06 functional/imperative impl for maps to sets
+
+  - we have a map 'a -> 'b set
+  - typically we are given an a, and want the 'b set pulled out, so we
+    don't have to keep looking it up in the map
+  - at some point later, we want to push the updated 'b set back into
+    the map; for imperative impls this is redundant because we are
+    mutating the 'b set in place
+  - what is needed is a guarantee that the a -> bs entry in the map is
+    unchanged while we alter bs; then an imperative impl doesn't have
+    to update the map after updating bs
+  - this isn't just a lookup and a later replace, it is a "lookup and
+    lock", and later "replace and free".
+  - for us, this lock could lock the entire map
+  - thus, one might propose that ('a,'b) map = m_t support an
+    operation lookup: m_t -> m_t' * 'b, and free: m_t' * 'b' -> m_t
+    where m_t' is the "context" of the map
+  - this is all rather complicated
+  - essentially we are trying to avoid a map update when using an
+    imperative impl; one way to do this is to record the map.find
+    (k,v) and when we update the map, check physical equality of the
+    (k,v') (in which case, don't bother with the update)
+  - this is all really about parameterization, fixed vars etc
+  - the other thing we may want is to make every set_add indicate
+    whether the value was already present

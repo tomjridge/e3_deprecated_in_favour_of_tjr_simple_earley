@@ -105,15 +105,22 @@ match ops.dest_item itm0 with
         let key = (k,citm_sym) in
         (* 12 check whether citm has already been done? no improvement *)
         (* record complete item; FIXME would like to have an
-           indication of whether the j was already in the cod *)
-        let s0 =
-          {s0 with
-           complete5=(Map_complete_key.map_add_cod key j s0.complete5)}
-        in
-        (* 15 O(n. ln n) cut complete item against blocked items *)
-        let f1 bitm s1 = cut bitm j s1 in
-        let s0 = Map_blocked_key.map_fold_cod key f1 s0.blocked5 s0 in
-        s0)
+           indication of whether the j was already in the cod when
+           adding, since then we don't have to access complete5
+           again *)
+        let present = Map_complete_key.map_find_cod key j s0.complete5 in
+        match present with
+        | true -> s0
+        | false -> (
+            let s0 =
+              {s0 with
+               complete5=(Map_complete_key.map_add_cod key j s0.complete5)}
+            in
+            (* 15 O(n. ln n) cut complete item against blocked items *)
+            (* FIXME loop with constant j could be optimized *)
+            let f1 bitm s1 = cut bitm j s1 in
+            let s0 = Map_blocked_key.map_fold_cod key f1 s0.blocked5 s0 in
+            s0))
     | false -> (  (* 20 *)
         let bitm = nitm in
         let (bitm_sym,i,k) =
@@ -126,6 +133,12 @@ match ops.dest_item itm0 with
             blocked5=(Map_blocked_key.map_add_cod key bitm s0.blocked5)}
         in
         (* O(n. ln n) process blocked item against complete items *)
+        (* FIXME constant key could be optimized; constant bitm could
+           be optimized *)
+        (* FIXME this parameterization corresponds to pulling out cods
+           from maps; perhaps we could add extra operation to pull out a
+           cod, and push back; for imperative impl, the push back would
+           do nothing of course *)
         let f3 j s1 = cut bitm j s1 in
         let s0 = Map_complete_key.map_fold_cod key f3 s0.complete5 s0 in
         (* 40 *)
@@ -158,10 +171,17 @@ match ops.dest_item itm0 with
       { s1 with complete5=(Map_complete_key.map_add_cod key j s1.complete5)}
     in
     (* FIXME could combine this fold over rs with the following *)
+    (* FIXME fold with constant key could be optimized *)
+    (* FIXME allow map_add_cod key js? *)
     let s0 = List.fold_left f5 s0 rs in
     (* 70 cut citm against blocked *)
     let f8 s1 j = (
       (* 80 O(n. ln n) process new citm against all blocked items *)
+      (* FIXME fold_cod with constant key could be optimized; can we
+         do some computation when given key and map? need to know that
+         cod of map is constant which we do; perhaps better to
+         optimize the underlying map for the case that a key is
+         repeatedly used *)
       let f6 bitm s1 = cut bitm j s1 in
       let s1 = Map_blocked_key.map_fold_cod key f6 s1.blocked5 s1 in
       s1)
