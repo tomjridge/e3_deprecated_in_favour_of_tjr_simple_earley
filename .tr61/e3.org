@@ -671,3 +671,12 @@ Start example 17y ......stop in 1.873853 seconds
   - this is all really about parameterization, fixed vars etc
   - the other thing we may want is to make every set_add indicate
     whether the value was already present
+
+* 2016-02-06 made a new branch 2016-02-06 for the current state, before major surgery
+
+  - actually, isn't the point of map_fold_cod precisely to avoid
+    repeatedly looking up the same set in the map?
+    - for tmitms we do have a map_fold_cod inside a fold, but this is
+      not expected to affect performance
+    - still, perhaps it would be worth implementing these changes so
+      that the interface is simpler? ie don't have map_fold_cod
