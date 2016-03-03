@@ -34,3 +34,7 @@ make doc
 ~~~
 
 Result will be in `./simple_doc`
+
+
+
+NB abandoned - moving to e_fg implementation
