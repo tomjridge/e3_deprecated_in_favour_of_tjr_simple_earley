@@ -28,7 +28,7 @@ cmi:
 
 install: all
 	ocamlfind install e3 META \
-	  _build/src/*.cmi  _build/src/e3.cma _build/src/e3.cmxa _build/src/e3.a
+	  _build/src.linked/*.cmi  _build/src.linked/e3.cma _build/src.linked/e3.cmxa _build/src.linked/e3.a
 
 test: all
 	./test.native
