@@ -10,7 +10,7 @@ $(SRC_LINKED):
 	-rm -rf $@
 	mkdir $@
 	cd $@ && find ../src -type f -exec ln -s \{\} . \;
-	ln -s ../.tr61/interactive.ml $@
+#	ln -s ../.tr61/interactive.ml $@
 
 
 # OB_IS:=-Is src,src/core,src/impl,src/sets_maps,src/test
