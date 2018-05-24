@@ -1,5 +1,10 @@
 (* a set implemented using hashtables *)
 
+let default_hashtbl_size = 100
+
+module type T_t = sig
+  type t
+end
 
 (* use a type isomorphic to the original - hashing may be expensive *)
 module type Iso_type_t = sig
@@ -10,30 +15,49 @@ module type Iso_type_t = sig
 end
 
 
-module Basic_hashset_impl(Iso_type:Iso_type_t) = struct
+module Basic_hashset_impl(Iso_type:Iso_type_t)
+  : Set_map_types.Basic_set_t with type elt=Iso_type.t
+= struct
 
   module Iso_type = Iso_type
 
   type elt = Iso_type.t
-  type t = (Iso_type.t_iso,unit) Hashtbl.t (* set implemented as a map from t_iso to t *)
+  type t = (Iso_type.t_iso,unit) Hashtbl.t (* set implemented as a map from t_iso to unit *)
 
   let iso = Iso_type.iso
   
-  let std_empty : unit -> t = fun () -> Hashtbl.create 17 (* FIXME *)
-  let std_add : elt -> t -> t = (
+  let set_empty : unit -> t = fun () -> Hashtbl.create default_hashtbl_size
+  let set_is_empty s = (Hashtbl.length s = 0)
+  let set_add : elt -> t -> (t * bool) = (
     fun e s -> (
-        Hashtbl.replace s (iso e) ();
-        s)
+        let before = Hashtbl.length s in
+        let _ = Hashtbl.replace s (iso e) () in
+        let after = Hashtbl.length s in
+        (s,before==after)) (* check whether elt was already in the set *)
   )
-  let std_mem : elt -> t -> bool = (
+  let set_mem : elt -> t -> bool = (
     fun e s -> Hashtbl.mem s (iso e)
   )
+
+  (*
+  let set_fold f s init = (
+    let f' k v acc = f k acc in
+    Hashtbl.fold f' s init
+  )
+  let set_elements s = (
+    let r = ref [] in
+    let f k v acc = r:=k::!r in
+    let () = Hashtbl.fold f s () in
+    !r
+  )
+     *)
   
 end  
 
-
 (* additional useful functions *)
-module Default_hashset_impl(Iso_type:Iso_type_t) = struct
+module Default_hashset_impl(Iso_type:Iso_type_t)
+  : Set_map_types.Basic_set_t with type elt=Iso_type.t
+= struct
 
   module Iso_type = Iso_type
 
@@ -42,18 +66,25 @@ module Default_hashset_impl(Iso_type:Iso_type_t) = struct
 
   let iso = Iso_type.iso
   
-  let std_empty : unit -> t = fun () -> Hashtbl.create 17 (* FIXME *)
-  let std_add : elt -> t -> t = (
+  let set_empty : unit -> t = fun () -> Hashtbl.create default_hashtbl_size
+
+  let set_is_empty s = (Hashtbl.length s = 0)
+
+  let set_add : elt -> t -> (t * bool) = (
     fun e s -> (
-        Hashtbl.replace s (iso e) e;
-        s)
+        let before = Hashtbl.length s in
+        let _ = Hashtbl.replace s (iso e) e in
+        let after = Hashtbl.length s in
+        (s,before=after) (* check whether elt was already in the set *)
+      )
   )
-  let std_mem : elt -> t -> bool = (
+
+  let set_mem : elt -> t -> bool = (
     fun e s -> Hashtbl.mem s (iso e)
   )
 
-  let fold : t -> (elt -> 'b -> 'b) -> 'b -> 'b = (
-    fun s0 f (init:'b) -> (
+  let set_fold : (elt -> 'b -> 'b) -> t -> 'b -> 'b = (
+    fun f s0 (init:'b) -> (
         Hashtbl.fold
           (fun k v (i:'b) ->
              f v i
@@ -63,9 +94,7 @@ module Default_hashset_impl(Iso_type:Iso_type_t) = struct
       )
   )
 
-  let is_empty : t -> bool = (fun m0 -> Hashtbl.length m0 = 0)
-
-  let elements : t -> elt list = (
+  let set_elements : t -> elt list = (
     fun s0 -> (
         let elts = ref [] in
         let _ =
@@ -84,71 +113,37 @@ module Default_hashset_impl(Iso_type:Iso_type_t) = struct
 end
 
 
-
-module Default_hashmap_impl(K:Iso_type_t)(V:Iso_type_t) = struct
+module Default_hashmap_impl(K:Iso_type_t)(V:T_t)
+  : Set_map_types.Map_t with type key = K.t and type value = V.t
+= struct
 
   module K = K
-  module V = V
 
   type key = K.t
   type value = V.t
 
-  module V_set = Default_hashset_impl(V)
-  
-  type t = (K.t_iso,V_set.t) Hashtbl.t
+  type t = (K.t_iso,value) Hashtbl.t
 
-  let map_empty : unit -> t = fun () -> Hashtbl.create 17
-  let map_find : t -> key -> V_set.t = (
-    fun m0 k0 -> (
+  let map_empty : unit -> t = (
+    fun () -> Hashtbl.create default_hashtbl_size)
+
+  let map_add : key -> value -> t -> t = (
+    fun k v m0 -> (
+        let hk = K.iso k in (
+          Hashtbl.replace m0 hk v;
+          m0)
+      )
+  )
+  
+  let map_find : key -> t -> value option = (
+    fun k0 m0 -> (
         let hk = K.iso k0 in
-        let s =
-          try
-            Hashtbl.find m0 hk
-          with _ -> (
-              let s = V_set.std_empty () in              
-              let () = Hashtbl.replace m0 hk s in
-              s
-            )
+        let s = (
+          try Some(Hashtbl.find m0 hk) with _ -> None)
         in
         s
       )
   )
-  let map_add_cod: key -> value -> t -> t = (
-    fun k v m -> 
-      let vs = map_find m k in
-      let _ = V_set.std_add v vs in  (* imperative, so we don't have to reinsert into the map *)
-      m
-  )
-
-  let map_fold_cod: key -> (value -> 'b -> 'b) -> t -> 'b -> 'b = (
-    fun k f m0 (init:'b) -> (
-        let vs = map_find m0 k in
-        V_set.fold vs f init
-      )                       
-  )
-
-  let map_cod_empty: key -> t -> bool = (
-    fun k m0 -> (
-        let vs = map_find m0 k in
-        V_set.is_empty vs
-      )
-  )
-
-
-  let map_find_cod: key -> value -> t -> bool = (
-    fun k v m0 -> (
-        let vs = map_find m0 k in
-        V_set.std_mem v vs
-      )
-  )
-
-  let mssii_elts_cod: key -> t -> value list = (
-    fun k m0 -> (
-        let vs = map_find m0 k in
-        V_set.elements vs
-      )                
-  )
 
   
 end
-

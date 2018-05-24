@@ -30,164 +30,168 @@ module
   open Earley_state
 
   
-  let update_oracle:
-    Map_sym_sym_int_int.t -> nt_item * int ->
-    Map_sym_sym_int_int.t
-    = (fun m (itm,l) ->
-        let (syms1,sym2) = (ops.a2 itm,ops.hd_b2 itm) in
-        let (i,k,j) = (ops.nt_dot_i9 itm,ops.nt_dot_j9 itm,l) in
-        let key = (syms1,sym2,i,j) in
-        let m = Maps.Map_sym_sym_int_int.map_add_cod key k m in 
-        m)
-
-
-  let update_tmoracle:
-    Map_tm_int.t -> tm*int*int
-    -> Map_tm_int.t
-    = (fun m (tm,i,j) ->
-    let key = (tm,i) in
-    let m = Maps.Map_tm_int.map_add_cod key j m in
-    m)
-
-  
   let todo_is_empty s0 = (s0.todo5=[])
 
-  let add_todo s0 itm = {
-    s0 with 
-    todo5=(itm::s0.todo5); 
-    todo_done5=(Set_todo_done.std_add itm s0.todo_done5) }
+  let unsafe_add_todo s0 itm = (
+    let td = s0.todo_done5 in
+    let (td',itm_already_present) = Set_todo_done.std_add itm td in
+    (*    let _ = assert (not itm_already_present) in *)
+    { s0 with
+      todo5=(itm::s0.todo5);
+      todo_done5=td' }
+  )
   
-
+  (* doc:rcf *)
+  let add_todo s0 itm = (
+    let td = s0.todo_done5 in
+    (* O(ln n) *)
+    (* let present = Set_todo_done.std_mem itm td in *)
+    let (td',itm_already_present) = Set_todo_done.std_add itm td in
+    (* let _ = assert (present = itm_already_present) in *)
+    { s0 with 
+      todo5=(if itm_already_present then s0.todo5 else itm::s0.todo5); 
+      todo_done5=td' })
+  
+  
   let pop_todo s0 = (
     match s0.todo5 with
     | [] -> (failwith "pop_todo")
     | x::xs -> ({s0 with todo5=xs},x))
+
+
+  let new_nt_item: nt_item -> int -> nt_item = (
+    fun bitm j -> (
+        (ops.shift_a2_b2_c2 bitm) |> (fun x -> ops.with_j9 x j)
+      ))
+
+  (* doc:abc *)
+  let update_oracle:
+    Map_sym_sym_int_int.t -> nt_item * int -> Map_sym_sym_int_int.t = (
+    fun m (itm,j) ->
+      let (syms1,sym2) = (ops.a2 itm,ops.hd_b2 itm) in
+      let (i,k) = (ops.nt_dot_i9 itm,ops.nt_dot_j9 itm) in
+      let key = (syms1,sym2,i,j) in
+      let m = Maps.Map_sym_sym_int_int.map_add_cod key k m in 
+      m)
   
-  (* bitm is an nt_item *)
-  (* O(ln n) *)
-  let cut:
-    nt_item -> sym_item -> ty_loop2
-    -> ty_loop2
-    = (fun bitm citm s0 ->
-        let nitm = ops.mk_item (`NTITM ((ops.shift_a2_b2_c2 bitm) |> (fun x -> ops.with_j9 x (ops.sym_dot_j9 citm)))) in
-        let s0 = (
-          (* if this could be made O(1) our implementation would be O(n^3) overall *)
-          if (Set_todo_done.std_mem nitm s0.todo_done5) then
-            s0
-          else
-            add_todo s0 nitm)
-        in
-        s0)
+  (* doc:4s4 *)
+  let cut: nt_item -> int -> ty_loop2 -> ty_loop2 = (
+    fun bitm j s0 ->
+      let nitm = ops.mk_item (`NTITM (new_nt_item bitm j)) in
+      (* update the oracle *)
+      (* O(ln n) with sets implemented as binary trees; if this
+         could be made O(1) our implementation would be O(n^3)
+         overall *)
+      let s0 = { s0 with oracle5=(update_oracle s0.oracle5 (bitm,j)) } in
+      add_todo s0 nitm)
 
 
-  (* perhaps grammar and input should be included in the state? *)
-  let step: (Ctxt.ctxt_t) -> ty_loop2 -> ty_loop2 = (fun c0 ->
+  (* doc:ixo *)
+  let step: (Ctxt.ctxt_t) -> ty_loop2 -> ty_loop2 = (
+    fun c0 ->
       let g0 = c0.g0 in
       let i0 = c0.i0 in
 fun s0 ->
-        
+
 let (s0,itm0) = pop_todo s0 in
 (* FIXME add a case construct rather than dests *)
 match ops.dest_item itm0 with
-| `NTITM nitm -> (
+| `NTITM nitm -> (  (* 10 *)
     let complete = ops.b2_nil nitm in
     match complete with
     | true -> (
-        let citm = ops.mk_sym_coord (ops.nt2 nitm, ops.nt_dot_i9 nitm, ops.nt_dot_j9 nitm) in
-        let k = (ops.sym_dot_i9 citm (* FIXME could be from dot_i9 nitm *),ops.sym6 citm) in
-        (* FIXME check whether citm has already been done? *)
-        (*let citms = map_complete_key.find2 k s0.complete5 in *)
-        match false (* sets.set_sym_item.std_mem citm citms *) with (* FIXME this optimization didn't buy much *)
+        let (citm_sym,k,j) =  (* ie citm *)
+          (ops.nt2 nitm, ops.nt_dot_i9 nitm, ops.nt_dot_j9 nitm) in
+        let key = (k,citm_sym) in
+        (* 12 check whether citm has already been done? no improvement *)
+        (* record complete item; FIXME would like to have an
+           indication of whether the j was already in the cod when
+           adding, since then we don't have to access complete5
+           again *)
+        let present = Map_complete_key.map_find_cod key j s0.complete5 in
+        match present with
         | true -> s0
         | false -> (
-            (* O(n. ln n) *)
-            (* process complete item against blocked items *)
-            let f1 bitm s1 = cut bitm citm s1 in
-            let s0 = Map_blocked_key.map_fold_cod k f1 s0.blocked5 s0 in
-            (* record complete item *)
-            let s0 = {s0 with complete5=(Map_complete_key.map_add_cod k citm s0.complete5)} in
-            (* we also update the oracle at this point; FIXME this appears very costly *)
-            let f2 bitm s1 = {s1 with oracle5=(update_oracle s1.oracle5 (bitm,ops.sym_dot_j9 citm))} in
-            (* O(n. ln n) *)
-            let s0 = Map_blocked_key.map_fold_cod k f2 s0.blocked5 s0 in
+            let s0 =
+              {s0 with
+               complete5=(Map_complete_key.map_add_cod key j s0.complete5)}
+            in
+            (* 15 O(n. ln n) cut complete item against blocked items *)
+            (* FIXME loop with constant j could be optimized *)
+            let f1 bitm s1 = cut bitm j s1 in
+            let s0 = Map_blocked_key.map_fold_cod key f1 s0.blocked5 s0 in
             s0))
-    | false -> (
+    | false -> (  (* 20 *)
         let bitm = nitm in
-        let sym = ops.hd_b2 bitm in
-        let k = (ops.nt_dot_j9 bitm,sym) in
-        (* let bitms = map_blocked_key.find2 k s0.blocked5 in *)
-        let new_key = Map_blocked_key.map_cod_empty k s0.blocked5 in
-        (* record blocked item *)
-        let s0 = {s0 with blocked5=(Map_blocked_key.map_add_cod k bitm s0.blocked5)} in
-        (* process blocked item against complete items *)
-        (* O(n. ln n) *)
-        let f3 citm s1 = cut bitm citm s1 in
-        let s0 = Map_complete_key.map_fold_cod k f3 s0.complete5 s0 in
-        (* we also update the oracle at this point; FIXME this appears very costly *)
-        (* O(n. ln n) *)
-        let f4 citm s1 = {s1 with oracle5=(update_oracle s1.oracle5 (bitm,ops.sym_dot_j9 citm)) } in        
-        let s0 = Map_complete_key.map_fold_cod k f4 s0.complete5 s0 in
-        (* the invariant should be: (j,nt) is nonempty iff all
-           nt items for j are already in set_todo_done; (j,tm) is
-           nonempty iff all tmitems for j are already in
-           set_todo_done; FIXME in which case we don't have to check
-           whether all these new items are already in set_todo_done
-               when new_key - they aren't *)
+        let (bitm_sym,i,k) =
+          (ops.hd_b2 bitm, ops.nt_dot_i9 nitm, ops.nt_dot_j9 nitm) in
+        let key = (k,bitm_sym) in
+        let new_key = Map_blocked_key.map_cod_empty key s0.blocked5 in
+        (* 25 record blocked item *)
+        let s0 =
+          { s0 with
+            blocked5=(Map_blocked_key.map_add_cod key bitm s0.blocked5)}
+        in
+        (* O(n. ln n) process blocked item against complete items *)
+        (* FIXME constant key could be optimized; constant bitm could
+           be optimized *)
+        (* FIXME this parameterization corresponds to pulling out cods
+           from maps; perhaps we could add extra operation to pull out a
+           cod, and push back; for imperative impl, the push back would
+           do nothing of course *)
+        let f3 j s1 = cut bitm j s1 in
+        let s0 = Map_complete_key.map_fold_cod key f3 s0.complete5 s0 in
+        (* 40 *)
         if new_key then (
-          match sym_case sym with
+          match sym_case bitm_sym with
           | `NT nt -> (
-              let rs = g0.nt_items_for_nt nt (i0.string5, ops.nt_dot_i9 nitm, ops.nt_dot_j9 nitm) in
-              let f1 s1 pnitm = (
-                let nitm = ops.mk_item (`NTITM pnitm) in
-                if (Set_todo_done.std_mem nitm s1.todo_done5) then s1 else
-                  add_todo s1 nitm)
+              let rs = g0.nt_items_for_nt nt (i0.string5, i, k) in
+              let f1 s1 nitm = (
+                let itm = ops.mk_item (`NTITM nitm) in
+                (* new_key=true, so no need to check todo_done *)
+                unsafe_add_todo s1 itm)
               in
               let s0 = List.fold_left f1 s0 rs in
               s0)
           | `TM tm -> (
-              let titm = ops.mk_item(`TMITM(ops.mk_tm_coord (tm,ops.nt_dot_j9 nitm))) in
-              if (Set_todo_done.std_mem titm s0.todo_done5) then s0 else 
-                add_todo s0 titm))
+              let titm = ops.mk_item(`TMITM(ops.mk_tm_coord (tm,k))) in
+              (* new_key=true, so no need to check todo_done *)
+              unsafe_add_todo s0 titm))
         else
           s0
       ))
-| `TMITM titm -> (
-    let tm = ops.tm5 titm in
-    let p = g0.p_of_tm tm in
-    let i = ops.tm_dot_i9 titm in
-    let rs = p (i0.string5,i,i0.length5) in 
+| `TMITM titm -> (  (* 50 *)
+    let (tm,k) = (ops.tm5 titm,ops.tm_dot_i9 titm) in
     let sym = sym_of_tm tm in
-    let k = (i,sym) in
-    (* lots of new complete items, so complete5 must be updated, but we must also process blocked *)
-    (* let bitms = map_blocked_key.find2 k s0.blocked5 in *)
-    (* update complete set *)
-    let f5 s1 j = (
-      let citm = ops.mk_sym_coord (sym,i,j) in
-      {s1 with complete5=(Map_complete_key.map_add_cod k citm s1.complete5)}) 
+    let p = g0.p_of_tm tm in
+    let rs = p (i0.string5,k,i0.length5) in 
+    let key = (k,sym) in
+    (* 60 update complete items *)
+    let f5 s1 j =
+      { s1 with complete5=(Map_complete_key.map_add_cod key j s1.complete5)}
     in
+    (* FIXME could combine this fold over rs with the following *)
+    (* FIXME fold with constant key could be optimized *)
+    (* FIXME allow map_add_cod key js? *)
     let s0 = List.fold_left f5 s0 rs in
+    (* 70 cut citm against blocked *)
     let f8 s1 j = (
-      let i = ops.tm_dot_i9 titm in 
-      let citm = ops.mk_sym_coord (sym,i,j) in
-      let f6 bitm s1 = cut bitm citm s1 in
-      (* O(n. ln n) *)
-      (* let s1 = sets.set_nt_item.fold f1 bitms s1 in *)
-      let s1 = Map_blocked_key.map_fold_cod k f6 s1.blocked5 s1 in
-      (* we also update the oracle at this point *)
-      let f7 bitm s1 = {s1 with oracle5=(update_oracle s1.oracle5 (bitm,ops.sym_dot_j9 citm)) } in
-      (* O(n. ln n) *)
-      (* let s1 = {s1 with oracle5=(sets.set_nt_item.fold f1 bitms s1.oracle5) } in (* FIXME note bitms wasn't used linearly - but that doesn't matter because bitms isn't updated in this loop *) *)
-      let s1 = Map_blocked_key.map_fold_cod k f7 s1.blocked5 s1 in
-      (* and the tmoracle *)
-      let s1 = {s1 with tmoracle5=(update_tmoracle s1.tmoracle5 (tm,i,j)) } in
+      (* 80 O(n. ln n) process new citm against all blocked items *)
+      (* FIXME fold_cod with constant key could be optimized; can we
+         do some computation when given key and map? need to know that
+         cod of map is constant which we do; perhaps better to
+         optimize the underlying map for the case that a key is
+         repeatedly used *)
+      let f6 bitm s1 = cut bitm j s1 in
+      let s1 = Map_blocked_key.map_fold_cod key f6 s1.blocked5 s1 in
       s1)
     in
     let s0 = List.fold_left f8 s0 rs in
-    (* let s0 = {s0 with complete5=(map_complete_key.add k cs s0.complete5)} in *)
     s0))
 
   (* if porting to an imperative language, use a while loop for the following *)
-  let earley: ctxt_t -> ty_loop2 -> ty_loop2 = (fun c0 ->
+  let earley: ctxt_t -> ty_loop2 -> ty_loop2 = (
+    fun c0 ->
       let stp = step c0 in
       let rec loop s0 = (
         if todo_is_empty s0 then s0 else (loop (stp s0)))

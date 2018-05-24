@@ -1,0 +1,13 @@
+Take the oracle, an nt_item and an int j, and return the updated oracle.
+
+The nt_item is of the form X -> xs.y ys,i,k
+
+The j indicates that y could be parsed from k to posn j:
+
+i xs k y j
+
+Thus, the key is (xs,y,i,j), and we need to insert k into the map.
+
+--
+
+FIXME perhaps the key should rather be i xs y j ?

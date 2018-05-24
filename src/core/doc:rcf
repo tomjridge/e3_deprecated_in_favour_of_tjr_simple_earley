@@ -1,0 +1,6 @@
+Add an item to the set of todos.
+
+Note that we perform a shallow check `td' == td` whether the element
+was already in the set. This avoids checking with `std_mem`
+first. This should save a lot of time, but performance seems barely
+changed.

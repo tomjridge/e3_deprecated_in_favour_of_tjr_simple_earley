@@ -125,7 +125,7 @@ module Sets_maps = struct
         (Nt_item_ord)
 
     type mck_key = int * sym
-    type mck_value = sym_item
+    type mck_value = int
     module Map_complete_key = Map_impl
         (struct
           type t = mck_key
@@ -136,7 +136,7 @@ module Sets_maps = struct
           let compare: t -> t -> int = Pervasives.compare
         end)
 
-
+(*
     type mti_key = tm * int
     type mti_value = int
     module Map_tm_int = Map_impl
@@ -148,7 +148,7 @@ module Sets_maps = struct
           type t = mti_value
           let compare: t -> t -> int = Pervasives.compare
         end)
-        
+*)        
 
     type mssii_key = sym_list * sym * int * int
     type mssii_value = int

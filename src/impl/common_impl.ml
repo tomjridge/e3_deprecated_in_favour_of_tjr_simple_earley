@@ -117,55 +117,6 @@ module Ctxt = struct
 end
 
 
-module type Impl_t = sig
-
-  (** A simple interface to Earley. 
-
-      The implementation is very inefficient - this is only for
-      demonstration purposes. DO NOT USE IN PRODUCTION CODE!
-
-  *)
-
-
-(*
-    Examples of usage can be found in the modules {E3_examples} and
-    {E3_test} (no ocamldoc - consult the source).
-*)
-
-  (** Nonterminals must be even integers *)
-  type nt = int
-
-  (** Terminals must be odd integers *)
-  type tm = int
-
-  (** Symbols are either nts or tms *)
-  type sym = [ `NT of nt | `TM of tm ]
-
-  (** An item, a tuple representing an Earley item of the form E -> alpha.beta,i,j *)
-  type nt_item = nt * sym list * sym list * int * int
-
-  (** The parameters for Earley are the grammar (encoded as a function
-      nt_items_for_nt, see {E3_examples} for an example), and a function
-      {p_of_tm} which takes a terminal and a substring, and returns the
-      prefixes (represented as an index) of the substrings that can be
-      parsed by that terminal. *)
-  type 'a params = {
-    nt_items_for_nt: nt -> ('a*int*int) -> nt_item list;
-    p_of_tm: tm -> ('a*int*int) -> int list }
-
-  (** The result of parsing is an oracle which, given a list of symbols
-      alpha, and a symbol X, and a span (i,j), returns the list of integers
-      k such that (i,k) can be parsed as alpha, and (k,j) can be parsed as
-      X. *)
-  type oracle_t = (sym list * sym) -> (int * int) -> int list
-
-  (** Parsing also returns information about which extents correspond to terminals. *)
-  type tm_oracle_t = tm -> (int * int) -> bool
-
-  val run_earley: 'a params -> nt -> 'a -> int -> (oracle_t * tm_oracle_t)
-
-
-end
 
 
 
@@ -191,7 +142,7 @@ module
       todo_done5: Set_todo_done.t;
       todo5: item list;
       oracle5: Map_sym_sym_int_int.t;
-      tmoracle5: Map_tm_int.t;
+      (*      tmoracle5: Map_tm_int.t; *)
       blocked5: Map_blocked_key.t;
       complete5: Map_complete_key.t;
     }
@@ -229,7 +180,7 @@ module
         todo_done5=Sets.Set_todo_done.std_empty();
         todo5=[item0];
         oracle5=Maps.Map_sym_sym_int_int.map_empty();
-        tmoracle5=Maps.Map_tm_int.map_empty();
+        (*        tmoracle5=Maps.Map_tm_int.map_empty(); *)
         blocked5=Maps.Map_blocked_key.map_empty();
         complete5=Maps.Map_complete_key.map_empty();
       }
@@ -263,7 +214,10 @@ module
             Maps.Map_sym_sym_int_int.mssii_elts_cod (syms1,sym2,i,j) s1.oracle5)
         in
         let tm_oracle = (fun tm -> fun (i,j) ->
-            Maps.Map_tm_int.map_find_cod (tm,i) j s1.tmoracle5)
+            (* FIXME inefficient? *)
+            let key = (i,`NT tm) in
+            let v = j in
+            Maps.Map_complete_key.map_find_cod key v s1.complete5)
         in
         (oracle,tm_oracle)
       )

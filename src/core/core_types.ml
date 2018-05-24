@@ -101,13 +101,16 @@ module type Maps_t = sig
 
 (*  type mck_key = int * sym
     type mck_value = sym_item *)
+  (* FIXME surely we only need ints as values? *)
   module Map_complete_key :
-    (Mck with type key=(int * sym) and type value=sym_item)
+    (Mck with type key=(int * sym) and type value=int (* sym_item *))
 
 (*  type mti_key = tm * int
     type mti_value = int *)
+(*    
   module Map_tm_int :
     (Mti with type key=(tm * int) and type value=int)
+*)
   
 (*  type mssii_key = sym_list * sym * int * int
     type mssii_value = int *)
@@ -192,11 +195,12 @@ module type Earley_state_t = sig
   open Maps
   open Sets
 
+  (* doc:77i *)
   type ty_loop2 = {
     todo_done5: Set_todo_done.t;
     todo5: item list;
     oracle5: Map_sym_sym_int_int.t;
-    tmoracle5: Map_tm_int.t;
+    (*    tmoracle5: Map_tm_int.t; *)
     blocked5: Map_blocked_key.t;
     complete5: Map_complete_key.t;
   }

@@ -1,0 +1,146 @@
+The main loop of the Earley implementation.
+
+`itm0` is an item that is pending.
+
+At (10) we are processing an `NTITM`. The item is complete if of the
+form `X -> xs. ,i,j`.
+
+If the item is complete, we construct a complete item `citm` of the
+form `x,i,j`. To process against blocked items we need the key `i,x`
+
+At (12) we are processing a complete item. We could check whether the
+complete item has already been processed, but this didn't seem to
+improve performance much, and adds an extra function to the
+map_complete_key interface.
+
+At (15) we process `citm` against relevant blocked items.
+
+We add `citm` to `complete5`.
+
+The we cut `citm` against all `bitm`s by folding a function over the
+blocked items.
+
+
+At (20) we are processing an `NTITM` that is not complete ie it is a
+blocked item `bitm`. The item is of the form `X -> xs.y ys,i,j`.
+
+`sym` is the `y`
+`k` is the key, `(j,sym)`
+
+`new_key`: there are two cases, depending on whether this key is new
+or not.
+
+At (25) we record the blocked item.
+
+We then process the blocked item against all complete items, using
+`Map_complete_key.map_fold_cod`
+
+
+At (40) we see the use of `new_key`. Recall that we have a blocked
+item. The item is blocked at posn `k` in the input, and we are trying
+to parse a `sym` from that point. Obviously we need to add new items,
+but only if we have not done so previously.
+
+The invariant should be: `(k,sym)` is nonempty iff all items for
+`(k,sym)` are already in `todo_done5
+
+
+At (50) we are processing a `TMITM titm`
+
+This creates lots of complete terminal items `rs` of the form
+`(sym,k,j)`. The `key` is `(k,sym)` (`sym` is a terminal).
+
+At (60) we update the complete items using `map_add_cod`, and folding
+over the complete items `rs`.
+
+At (70) we process each complete item against the blocked items to get
+new items, again by folding over `rs`.
+
+At (80) we know that the citm is new, but it is still possible that
+the new item from the cut has already been processed. The `citm` is of
+the form `tm,k,j`. The new item is `X -> tm xs,ys,i,j`. But `tm` may
+have spanned `k-d,j` also.
+
+
+---
+
+with tmoracle:
+
+Start example 833 ......stop in 0.788534 seconds
+Start example u5o ......stop in 6.823538 seconds
+Start example 86f ......stop in 0.292153 seconds
+Start example 17y ......stop in 2.230678 seconds
+
+without:
+
+tr61@pc1177:/tmp/l/github/e3$ ./examples.native 
+Start example 833 ......stop in 0.799573 seconds
+Start example u5o ......stop in 6.786658 seconds
+Start example 86f ......stop in 0.303249 seconds
+Start example 17y ......stop in 2.189659 seconds
+
+so barely worth doing
+
+---
+
+without checks:
+
+tr61@pc1177:/tmp/l/github/e3$ ./examples.native 
+Start example 833 ......stop in 0.793446 seconds
+Start example u5o ......stop in 6.800658 seconds
+Start example 86f ......stop in 0.292251 seconds
+Start example 17y ......stop in 2.189743 seconds
+
+again, barely worth doing
+
+---
+
+cut always updates the oracle;
+
+X -> xs.y ys,i,k
+y -> k,j
+-----
+X -> y xs,ys,i,j
+
+seems very reasonable to combine cut, and update_oracle
+
+cut and oracle update separate:
+
+Start example 833 ......stop in 0.791736 seconds
+Start example u5o ......stop in 6.784214 seconds
+Start example 86f ......stop in 0.29741 seconds
+Start example 17y ......stop in 2.169559 seconds
+
+with cut updating the oracle:
+
+Start example 833 ......stop in 0.79614 seconds
+Start example u5o ......stop in 6.788337 seconds
+Start example 86f ......stop in 0.29348 seconds
+Start example 17y ......stop in 2.166436 seconds
+
+so no real difference
+
+---
+
+Thoughts on sequencing of todo items:
+
+Probably the largest cost is repeatedly accessing todo_done5.
+
+  * changing `cut` so that `std_add` returns an indication of whether
+    the item was already there (thus avoiding the need for `std_mem`)
+    might cut the time in half
+
+The other degree of freedom is the order in which items are processed.
+
+`X -> xs.y ys,i,k` is cut with `y,k,j`, with new item `X -> y xs.ys,i,j`
+
+  * we could process all `k` items before progressing to `k+1`;
+    `todo_done` could then be indexed by ?
+
+A_{i,j} = matrix A ,row i, col j
+
+(AB)_{i,j} = Sigma_k A_{i,k}B_{k,j}
+
+But Earley is essentially an optimization of matrix multiplication. In
+what sense, exactly? We don't try all i <= k <= j, just those that
+arise during the parse, from blocked items.

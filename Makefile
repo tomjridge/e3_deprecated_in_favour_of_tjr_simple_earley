@@ -3,42 +3,59 @@ SHELL:=bash
 default: all
 
 SRC_LINKED:=src.linked
+BS:=_build/$(SRC_LINKED)
+
+# OB_IS:=-Is src,src/core,src/impl,src/sets_maps,src/test
+OB:=ocamlbuild -I $(SRC_LINKED) -cflag -w -cflag -8
+
+OD:=ocamlfind ocamldoc
 
 -include local.mk
 
+# need to rebuild on addition/removal of files
 $(SRC_LINKED): 
 	-rm -rf $@
 	mkdir $@
 	cd $@ && find ../src -type f -exec ln -s \{\} . \;
 #	ln -s ../.tr61/interactive.ml $@
 
+all: e3.cma e3.cmxa test.native examples.native 
 
-# OB_IS:=-Is src,src/core,src/impl,src/sets_maps,src/test
-OB:=ocamlbuild -I $(SRC_LINKED) -cflag -w -cflag -8
+%.cma: $(SRC_LINKED) FORCE
+	$(OB) $@
 
-all: $(SRC_LINKED)
-	$(OB) core_types.cmo core.cmo simple_impl.cmo hashtbl_impl.cmo test.native examples.native
-	$(OB) e3.cma e3.cmxa
+%.cmxa: $(SRC_LINKED) FORCE
+	$(OB) $@
 
-cmi:
-	$(OB) hashed_sets_and_maps.cmi set_map_types.cmi \
-	  core_types.cmi core.cmi common_impl.cmi hashtbl_impl.cmi simple_impl.cmi
+%.native: $(SRC_LINKED) FORCE
+	$(OB) $@
 
-#	$(OB) src e3_test.native e3_examples.native 
 
 install: all
-	ocamlfind install e3 META \
-	  _build/src.linked/*.cmi  _build/src.linked/e3.cma _build/src.linked/e3.cmxa _build/src.linked/e3.a
+	ocamlfind install e3 META $(BS)/*.cmi $(BS)/e3.cma $(BS)/e3.cmxa # _build/src/e3.a
 
-test: all
+
+test: test.native
 	./test.native
 
-doc:
+
+doc: simple_doc
+
+
+simple_doc: test.native # to force compile
+	-mkdir $@
+	$(OD) -html -I _build/$(SRC_LINKED) -d $@ \
+	  $(SRC_LINKED)/impl_t.mli $(SRC_LINKED)/hashtbl_impl.mli $(SRC_LINKED)/simple_impl.mli
+
+# various errors, not clear why
+e3.docdir:  test.native # to force compile
 	$(OB) e3.docdir/index.html
+
 
 clean:
 	$(OB) -clean
-	rm -rf $(SRC_LINKED)
+	-rm -rf $(SRC_LINKED) simple_doc
+	-rm result
 
 FORCE:
 
